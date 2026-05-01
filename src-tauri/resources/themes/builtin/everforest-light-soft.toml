@@ -1,0 +1,11 @@
+name = "Everforest Light Soft"
+base = "light"
+
+[colors]
+bg = "#f3ead3"
+surface = "#ede4c5"
+text = "#5c6a72"
+muted = "#829181"
+accent = "#8da101"
+border = "#d8d2b3"
+selected_border = "#f57d26"

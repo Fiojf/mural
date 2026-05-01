@@ -1,0 +1,11 @@
+name = "Material Palenight"
+base = "dark"
+
+[colors]
+bg = "#292d3e"
+surface = "#202331"
+text = "#a6accd"
+muted = "#676e95"
+accent = "#82aaff"
+border = "#3a3f58"
+selected_border = "#c792ea"

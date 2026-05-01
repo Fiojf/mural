@@ -1,0 +1,11 @@
+name = "Everforest Dark Soft"
+base = "dark"
+
+[colors]
+bg = "#333c43"
+surface = "#3a464c"
+text = "#d3c6aa"
+muted = "#9da9a0"
+accent = "#a7c080"
+border = "#4d5960"
+selected_border = "#e69875"

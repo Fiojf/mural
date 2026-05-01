@@ -1,0 +1,11 @@
+name = "Material Lighter"
+base = "light"
+
+[colors]
+bg = "#fafafa"
+surface = "#f5f5f5"
+text = "#90a4ae"
+muted = "#cfd8dc"
+accent = "#6182b8"
+border = "#e0e0e0"
+selected_border = "#945eb8"

@@ -1,0 +1,11 @@
+name = "Everforest Light Hard"
+base = "light"
+
+[colors]
+bg = "#fffbef"
+surface = "#f8f5e4"
+text = "#5c6a72"
+muted = "#829181"
+accent = "#8da101"
+border = "#e0dcc7"
+selected_border = "#f57d26"

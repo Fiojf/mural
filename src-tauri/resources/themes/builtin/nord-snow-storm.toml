@@ -1,0 +1,11 @@
+name = "Nord Snow Storm"
+base = "light"
+
+[colors]
+bg = "#eceff4"
+surface = "#e5e9f0"
+text = "#2e3440"
+muted = "#4c566a"
+accent = "#5e81ac"
+border = "#d8dee9"
+selected_border = "#88c0d0"

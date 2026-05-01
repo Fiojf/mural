@@ -1,0 +1,11 @@
+name = "One Light"
+base = "light"
+
+[colors]
+bg = "#fafafa"
+surface = "#f0f0f1"
+text = "#383a42"
+muted = "#a0a1a7"
+accent = "#4078f2"
+border = "#dcdfe4"
+selected_border = "#a626a4"

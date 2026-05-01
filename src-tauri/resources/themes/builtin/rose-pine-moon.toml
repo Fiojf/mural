@@ -1,0 +1,11 @@
+name = "Rosé Pine Moon"
+base = "dark"
+
+[colors]
+bg = "#232136"
+surface = "#2a273f"
+text = "#e0def4"
+muted = "#908caa"
+accent = "#c4a7e7"
+border = "#393552"
+selected_border = "#eb6f92"

@@ -1,0 +1,11 @@
+name = "Catppuccin Macchiato"
+base = "dark"
+
+[colors]
+bg = "#24273a"
+surface = "#1e2030"
+text = "#cad3f5"
+muted = "#a5adcb"
+accent = "#c6a0f6"
+border = "#363a4f"
+selected_border = "#f5bde6"

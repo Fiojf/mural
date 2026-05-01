@@ -1,0 +1,11 @@
+name = "Material Deep Ocean"
+base = "dark"
+
+[colors]
+bg = "#0f111a"
+surface = "#090b10"
+text = "#8f93a2"
+muted = "#464b5d"
+accent = "#82aaff"
+border = "#1a1c25"
+selected_border = "#c792ea"

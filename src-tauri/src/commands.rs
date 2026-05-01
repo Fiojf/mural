@@ -1,0 +1,264 @@
+//! Tauri command surface (IPC).
+
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+use std::sync::Arc;
+use tauri::{AppHandle, Emitter, Manager, State};
+
+use crate::config::{Config, GithubSource, SourceKind};
+use crate::popover;
+use crate::scan::WallpaperItem;
+use crate::sources::{self, SourceEntry};
+use crate::state::AppState;
+use crate::theme::Theme;
+use crate::wallpaper;
+
+type Shared<'a> = State<'a, Arc<AppState>>;
+
+fn err<E: std::fmt::Display>(e: E) -> String {
+    format!("{e:#}")
+}
+
+#[tauri::command]
+pub fn get_config(state: Shared<'_>) -> Config {
+    state.config.read().clone()
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct ConfigPatch {
+    pub folder: Option<PathBuf>,
+    pub hotkey: Option<String>,
+    pub layout: Option<crate::config::Layout>,
+    pub sort: Option<crate::config::Sort>,
+    pub show_searchbar: Option<bool>,
+    pub show_filenames: Option<bool>,
+    pub strip_extension: Option<bool>,
+    pub per_screen: Option<bool>,
+    pub per_space: Option<bool>,
+    pub lock_screen_mirror: Option<bool>,
+    pub open_animation: Option<crate::config::Animation>,
+    pub theme_id: Option<String>,
+    pub font_id: Option<String>,
+    pub rotate: Option<crate::config::RotateMode>,
+}
+
+#[tauri::command]
+pub fn set_config(patch: ConfigPatch, state: Shared<'_>) -> Result<Config, String> {
+    {
+        let mut cfg = state.config.write();
+        if let Some(v) = patch.folder { cfg.folder = v; }
+        if let Some(v) = patch.hotkey { cfg.hotkey = v; }
+        if let Some(v) = patch.layout { cfg.layout = v; }
+        if let Some(v) = patch.sort { cfg.sort = v; }
+        if let Some(v) = patch.show_searchbar { cfg.show_searchbar = v; }
+        if let Some(v) = patch.show_filenames { cfg.show_filenames = v; }
+        if let Some(v) = patch.strip_extension { cfg.strip_extension = v; }
+        if let Some(v) = patch.per_screen { cfg.per_screen = v; }
+        if let Some(v) = patch.per_space { cfg.per_space = v; }
+        if let Some(v) = patch.lock_screen_mirror { cfg.lock_screen_mirror = v; }
+        if let Some(v) = patch.open_animation { cfg.open_animation = v; }
+        if let Some(v) = patch.theme_id { cfg.theme_id = v; }
+        if let Some(v) = patch.font_id { cfg.font_id = v; }
+        if let Some(v) = patch.rotate { cfg.rotate = v; }
+    }
+    state.save_config().map_err(err)?;
+    Ok(state.config.read().clone())
+}
+
+#[tauri::command]
+pub fn list_themes(state: Shared<'_>) -> Vec<Theme> {
+    state.themes.list().to_vec()
+}
+
+#[tauri::command]
+pub fn list_fonts(state: Shared<'_>) -> Result<Vec<crate::fonts::FontEntry>, String> {
+    crate::fonts::list(&state.data_dir).map_err(err)
+}
+
+#[tauri::command]
+pub fn list_wallpapers(state: Shared<'_>) -> Vec<WallpaperItem> {
+    let cfg = state.config.read().clone();
+    let mut items = state.sources.collect_items(&cfg);
+
+    // Generate (or look up) the cached thumbnail for each item. The absolute
+    // path is returned as `thumb_url`; the frontend converts it to a webview
+    // URL via Tauri's `convertFileSrc`.
+    for item in items.iter_mut() {
+        if let Ok(p) = state.thumbs.ensure(&item.path, &item.source_id) {
+            item.thumb_url = Some(p.to_string_lossy().into_owned());
+        }
+    }
+    items
+}
+
+#[tauri::command]
+pub fn set_wallpaper(
+    path: PathBuf,
+    display_id: Option<String>,
+    state: Shared<'_>,
+) -> Result<(), String> {
+    wallpaper::apply(&state, &path, display_id.as_deref()).map_err(err)
+}
+
+#[tauri::command]
+pub fn open_settings(app: AppHandle) -> Result<(), String> {
+    if let Some(w) = app.get_webview_window("settings") {
+        w.show().map_err(err)?;
+        w.set_focus().map_err(err)?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn open_popover(app: AppHandle) -> Result<(), String> {
+    popover::show(&app).map_err(err)
+}
+
+#[tauri::command]
+pub fn close_popover(app: AppHandle) -> Result<(), String> {
+    popover::hide(&app).map_err(err)
+}
+
+#[tauri::command]
+pub fn reveal_in_finder(path: PathBuf) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg("-R")
+            .arg(&path)
+            .status()
+            .map_err(err)?;
+    }
+    let _ = path;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn sources_list(state: Shared<'_>) -> Vec<SourceEntry> {
+    let cfg = state.config.read().clone();
+    state.sources.list(&cfg)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GithubInput {
+    pub url: String,
+    pub r#ref: Option<String>,
+    pub path: Option<String>,
+    pub sync_interval_hours: u32,
+}
+
+#[tauri::command]
+pub async fn sources_add_github(
+    input: GithubInput,
+    app: AppHandle,
+    state: Shared<'_>,
+) -> Result<SourceEntry, String> {
+    crate::sources::github::validate_url(&input.url).map_err(err)?;
+    let id = crate::sources::github::make_id(&input.url, input.r#ref.as_deref());
+    let src = GithubSource {
+        id: id.clone(),
+        kind: SourceKind::Github,
+        url: input.url.clone(),
+        r#ref: input.r#ref.clone(),
+        path: input.path.clone(),
+        enabled: true,
+        sync_interval_hours: input.sync_interval_hours.max(1),
+        last_sync_iso: None,
+        last_sync_sha: None,
+    };
+    {
+        let mut cfg = state.config.write();
+        if cfg.sources.iter().any(|s| s.id == id) {
+            return Err(format!("source already exists: {id}"));
+        }
+        cfg.sources.push(src.clone());
+    }
+    state.save_config().map_err(err)?;
+
+    // Kick off first sync without blocking the UI.
+    let app_clone = app.clone();
+    let state_arc: Arc<AppState> = (*state).clone();
+    let src_clone = src.clone();
+    tauri::async_runtime::spawn(async move {
+        let _ = sources::sync_one(&app_clone, &state_arc, &src_clone).await;
+    });
+
+    let cfg = state.config.read().clone();
+    let entry = state
+        .sources
+        .list(&cfg)
+        .into_iter()
+        .find(|s| s.id == id)
+        .ok_or_else(|| "source missing after add".to_string())?;
+    Ok(entry)
+}
+
+#[tauri::command]
+pub fn sources_remove(id: String, app: AppHandle, state: Shared<'_>) -> Result<(), String> {
+    {
+        let mut cfg = state.config.write();
+        cfg.sources.retain(|s| s.id != id);
+    }
+    state.save_config().map_err(err)?;
+    let _ = app.emit("mural:wallpaper", serde_json::json!({"type": "list-changed"}));
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn sources_sync(
+    id: String,
+    app: AppHandle,
+    state: Shared<'_>,
+) -> Result<(), String> {
+    let src = state
+        .config
+        .read()
+        .sources
+        .iter()
+        .find(|s| s.id == id)
+        .cloned()
+        .ok_or_else(|| format!("no such source: {id}"))?;
+    let state_arc: Arc<AppState> = (*state).clone();
+    sources::sync_one(&app, &state_arc, &src).await.map_err(err)
+}
+
+#[tauri::command]
+pub fn sources_set_enabled(
+    id: String,
+    enabled: bool,
+    app: AppHandle,
+    state: Shared<'_>,
+) -> Result<(), String> {
+    {
+        let mut cfg = state.config.write();
+        if let Some(s) = cfg.sources.iter_mut().find(|s| s.id == id) {
+            s.enabled = enabled;
+        }
+    }
+    state.save_config().map_err(err)?;
+    let _ = app.emit("mural:wallpaper", serde_json::json!({"type": "list-changed"}));
+    Ok(())
+}
+
+#[tauri::command]
+pub fn onboarding_complete(state: Shared<'_>) -> Result<(), String> {
+    {
+        let mut cfg = state.config.write();
+        cfg.first_run_done = true;
+    }
+    state.save_config().map_err(err)?;
+    crate::samples::seed_if_empty(&state.config.read().folder).ok();
+    Ok(())
+}
+
+#[derive(Debug, Serialize)]
+pub struct Loc {
+    pub lat: f64,
+    pub lon: f64,
+}
+
+#[tauri::command]
+pub async fn request_location(_state: Shared<'_>) -> Result<Option<Loc>, String> {
+    crate::location::request().await.map_err(err)
+}

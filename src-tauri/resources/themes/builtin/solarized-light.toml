@@ -1,0 +1,11 @@
+name = "Solarized Light"
+base = "light"
+
+[colors]
+bg = "#fdf6e3"
+surface = "#eee8d5"
+text = "#586e75"
+muted = "#93a1a1"
+accent = "#268bd2"
+border = "#93a1a1"
+selected_border = "#d33682"

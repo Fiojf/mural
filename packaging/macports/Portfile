@@ -1,0 +1,65 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+# vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+PortSystem          1.0
+PortGroup           cargo 1.0
+
+name                mural
+version             0.1.0
+revision            0
+categories          aqua graphics
+license             GPL-3
+maintainers         {@mural-app}
+platforms           {darwin >= 21}
+supported_archs     arm64 x86_64
+
+description         Floating wallpaper picker for macOS, summoned by hotkey.
+long_description    Mural is a small, themeable wallpaper picker written in \
+                    Rust + Tauri. It lives in the menu bar, opens a floating \
+                    popover on a global hotkey, and applies wallpapers from a \
+                    local folder or any number of GitHub repositories.
+
+homepage            https://github.com/mural-app/mural
+master_sites        ${homepage}/releases/download/v${version}/
+
+# Source tarball is published as part of each release: it includes the
+# pre-built JavaScript frontend so MacPorts builds can run `cargo build`
+# directly without npm.
+distname            mural-${version}-src
+checksums           rmd160 0000000000000000000000000000000000000000 \
+                    sha256 0000000000000000000000000000000000000000000000000000000000000000
+
+depends_build       port:rust port:cargo
+depends_lib         port:libgit2
+
+# Source tree layout: src-tauri/ holds the Rust workspace; the cargo PortGroup
+# operates on it once we cd into that subdir.
+worksrcdir          ${distname}
+post-extract {
+    file rename ${workpath}/${worksrcdir}/src-tauri ${workpath}/${worksrcdir}/.cargo-root || true
+}
+
+cargo.target_dir    ${workpath}/${worksrcdir}/src-tauri/target
+cargo.config_files  src-tauri/Cargo.toml
+
+build.dir           ${workpath}/${worksrcdir}/src-tauri
+build.cmd           ${prefix}/bin/cargo
+build.target        build
+build.args          --release --locked
+
+destroot {
+    set app_src "${workpath}/${worksrcdir}/src-tauri/target/release/bundle/macos/Mural.app"
+    set app_dst "${destroot}${applications_dir}/Mural.app"
+    file mkdir ${destroot}${applications_dir}
+    if {[file isdirectory ${app_src}]} {
+        file copy ${app_src} ${app_dst}
+    } else {
+        ui_error "Mural.app missing; run 'cargo tauri build' before destrooting."
+        return -code error
+    }
+}
+
+notes {
+    Mural is unsigned. The first launch may require right-click -> Open or:
+        xattr -d com.apple.quarantine /Applications/Mural.app
+}

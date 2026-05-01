@@ -1,0 +1,11 @@
+name = "Everforest Light Medium"
+base = "light"
+
+[colors]
+bg = "#fdf6e3"
+surface = "#f4f0d9"
+text = "#5c6a72"
+muted = "#829181"
+accent = "#8da101"
+border = "#dcd9bf"
+selected_border = "#f57d26"

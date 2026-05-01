@@ -1,0 +1,11 @@
+name = "Gruvbox Dark Hard"
+base = "dark"
+
+[colors]
+bg = "#1d2021"
+surface = "#282828"
+text = "#ebdbb2"
+muted = "#a89984"
+accent = "#fabd2f"
+border = "#3c3836"
+selected_border = "#fb4934"

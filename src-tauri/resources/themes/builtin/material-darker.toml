@@ -1,0 +1,11 @@
+name = "Material Darker"
+base = "dark"
+
+[colors]
+bg = "#212121"
+surface = "#1a1a1a"
+text = "#eeffff"
+muted = "#545454"
+accent = "#82aaff"
+border = "#2a2a2a"
+selected_border = "#c792ea"

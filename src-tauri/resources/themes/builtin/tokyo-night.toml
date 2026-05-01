@@ -1,0 +1,11 @@
+name = "Tokyo Night"
+base = "dark"
+
+[colors]
+bg = "#1a1b26"
+surface = "#16161e"
+text = "#c0caf5"
+muted = "#9aa5ce"
+accent = "#7aa2f7"
+border = "#2a2b3d"
+selected_border = "#bb9af7"

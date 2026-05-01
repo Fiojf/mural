@@ -1,0 +1,11 @@
+name = "Kanagawa Dragon"
+base = "dark"
+
+[colors]
+bg = "#181616"
+surface = "#0d0c0c"
+text = "#c5c9c5"
+muted = "#737c73"
+accent = "#8ba4b0"
+border = "#282727"
+selected_border = "#c4b28a"

@@ -1,0 +1,11 @@
+name = "Ayu Light"
+base = "light"
+
+[colors]
+bg = "#fcfcfc"
+surface = "#f3f4f5"
+text = "#5c6166"
+muted = "#8a9199"
+accent = "#399ee6"
+border = "#e7e8e9"
+selected_border = "#f2ae49"

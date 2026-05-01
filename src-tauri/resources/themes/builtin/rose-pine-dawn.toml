@@ -1,0 +1,11 @@
+name = "Rosé Pine Dawn"
+base = "light"
+
+[colors]
+bg = "#faf4ed"
+surface = "#fffaf3"
+text = "#575279"
+muted = "#797593"
+accent = "#907aa9"
+border = "#dfdad9"
+selected_border = "#b4637a"

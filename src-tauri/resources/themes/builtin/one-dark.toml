@@ -1,0 +1,11 @@
+name = "One Dark"
+base = "dark"
+
+[colors]
+bg = "#282c34"
+surface = "#21252b"
+text = "#abb2bf"
+muted = "#5c6370"
+accent = "#61afef"
+border = "#3e4451"
+selected_border = "#c678dd"

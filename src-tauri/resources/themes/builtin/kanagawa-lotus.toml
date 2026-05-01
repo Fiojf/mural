@@ -1,0 +1,11 @@
+name = "Kanagawa Lotus"
+base = "light"
+
+[colors]
+bg = "#f2ecbc"
+surface = "#ede4c2"
+text = "#545464"
+muted = "#8a8980"
+accent = "#4d699b"
+border = "#dcd7a6"
+selected_border = "#cc6d00"

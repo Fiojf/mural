@@ -1,0 +1,11 @@
+name = "Rosé Pine"
+base = "dark"
+
+[colors]
+bg = "#191724"
+surface = "#1f1d2e"
+text = "#e0def4"
+muted = "#908caa"
+accent = "#c4a7e7"
+border = "#26233a"
+selected_border = "#eb6f92"

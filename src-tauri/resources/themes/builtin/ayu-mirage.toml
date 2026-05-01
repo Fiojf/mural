@@ -1,0 +1,11 @@
+name = "Ayu Mirage"
+base = "dark"
+
+[colors]
+bg = "#1f2430"
+surface = "#1a1f29"
+text = "#cbccc6"
+muted = "#707a8c"
+accent = "#73d0ff"
+border = "#2d3340"
+selected_border = "#ffd580"

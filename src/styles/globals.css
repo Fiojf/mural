@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #1e1e2e;
+  --color-surface: #181825;
+  --color-text: #cdd6f4;
+  --color-muted: #a6adc8;
+  --color-accent: #cba6f7;
+  --color-border: #313244;
+  --color-selected-border: #f5c2e7;
+  --font-ui: -apple-system, "SF Pro Text", system-ui;
+  --font-mono: ui-monospace, "SF Mono", monospace;
+  color-scheme: dark;
+}
+
+:root[data-base="light"] {
+  color-scheme: light;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.popover-shell {
+  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.thumb {
+  border: 2px solid transparent;
+  border-radius: 10px;
+  transition: border-color 120ms ease, transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.thumb[data-selected="true"] {
+  border-color: var(--color-selected-border);
+}
+.thumb:hover {
+  transform: translateY(-2px);
+}
+
+.anim-fade-scale-enter {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.anim-fade-scale-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}

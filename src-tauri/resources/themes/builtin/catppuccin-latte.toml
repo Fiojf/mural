@@ -1,0 +1,11 @@
+name = "Catppuccin Latte"
+base = "light"
+
+[colors]
+bg = "#eff1f5"
+surface = "#e6e9ef"
+text = "#4c4f69"
+muted = "#6c6f85"
+accent = "#8839ef"
+border = "#bcc0cc"
+selected_border = "#ea76cb"

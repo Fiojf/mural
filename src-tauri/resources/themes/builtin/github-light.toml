@@ -1,0 +1,11 @@
+name = "GitHub Light"
+base = "light"
+
+[colors]
+bg = "#ffffff"
+surface = "#f6f8fa"
+text = "#24292f"
+muted = "#57606a"
+accent = "#0969da"
+border = "#d0d7de"
+selected_border = "#bf3989"

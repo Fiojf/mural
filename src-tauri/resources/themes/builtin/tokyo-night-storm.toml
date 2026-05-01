@@ -1,0 +1,11 @@
+name = "Tokyo Night Storm"
+base = "dark"
+
+[colors]
+bg = "#24283b"
+surface = "#1f2335"
+text = "#c0caf5"
+muted = "#a9b1d6"
+accent = "#7aa2f7"
+border = "#414868"
+selected_border = "#bb9af7"

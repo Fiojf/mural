@@ -1,0 +1,11 @@
+name = "Ayu Dark"
+base = "dark"
+
+[colors]
+bg = "#0b0e14"
+surface = "#0d1017"
+text = "#bfbdb6"
+muted = "#565b66"
+accent = "#39bae6"
+border = "#1c1f24"
+selected_border = "#ffb454"

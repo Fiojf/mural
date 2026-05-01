@@ -1,0 +1,11 @@
+name = "Solarized Dark"
+base = "dark"
+
+[colors]
+bg = "#002b36"
+surface = "#073642"
+text = "#fdf6e3"
+muted = "#93a1a1"
+accent = "#268bd2"
+border = "#586e75"
+selected_border = "#d33682"

@@ -1,0 +1,11 @@
+name = "Gruvbox Light Medium"
+base = "light"
+
+[colors]
+bg = "#fbf1c7"
+surface = "#ebdbb2"
+text = "#3c3836"
+muted = "#7c6f64"
+accent = "#b57614"
+border = "#d5c4a1"
+selected_border = "#9d0006"

@@ -1,0 +1,11 @@
+name = "Dracula"
+base = "dark"
+
+[colors]
+bg = "#282a36"
+surface = "#21222c"
+text = "#f8f8f2"
+muted = "#6272a4"
+accent = "#bd93f9"
+border = "#44475a"
+selected_border = "#ff79c6"

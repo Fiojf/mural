@@ -1,0 +1,11 @@
+name = "Monokai Pro"
+base = "dark"
+
+[colors]
+bg = "#2d2a2e"
+surface = "#221f22"
+text = "#fcfcfa"
+muted = "#727072"
+accent = "#ab9df2"
+border = "#403e41"
+selected_border = "#ff6188"

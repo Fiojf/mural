@@ -1,0 +1,11 @@
+name = "Gruvbox Dark Soft"
+base = "dark"
+
+[colors]
+bg = "#32302f"
+surface = "#3c3836"
+text = "#ebdbb2"
+muted = "#a89984"
+accent = "#fabd2f"
+border = "#504945"
+selected_border = "#fb4934"

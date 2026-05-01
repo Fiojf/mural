@@ -1,0 +1,105 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Mural",
+  "version": "0.1.0",
+  "identifier": "app.mural.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "popover",
+        "title": "Mural",
+        "url": "index.html#/popover",
+        "width": 720,
+        "height": 360,
+        "minWidth": 480,
+        "minHeight": 240,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "visible": false,
+        "center": true,
+        "focus": false,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay"
+      },
+      {
+        "label": "settings",
+        "title": "Mural — Settings",
+        "url": "index.html#/settings",
+        "width": 880,
+        "height": 600,
+        "minWidth": 720,
+        "minHeight": 480,
+        "decorations": true,
+        "resizable": true,
+        "visible": false,
+        "center": true,
+        "titleBarStyle": "Visible"
+      },
+      {
+        "label": "onboarding",
+        "title": "Welcome to Mural",
+        "url": "index.html#/onboarding",
+        "width": 640,
+        "height": 480,
+        "decorations": true,
+        "resizable": false,
+        "visible": false,
+        "center": true,
+        "titleBarStyle": "Transparent",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$APPCACHE/**",
+          "$CACHE/**",
+          "$HOME/Mural/**",
+          "$HOME/Library/Caches/Mural/**",
+          "$HOME/Library/Application Support/Mural/**"
+        ]
+      }
+    },
+    "trayIcon": {
+      "id": "mural-tray",
+      "iconPath": "icons/tray.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "category": "DesignTools",
+    "shortDescription": "Wallpaper picker",
+    "longDescription": "Mural is a fast, themeable wallpaper picker for macOS, summoned with a hotkey.",
+    "icon": [
+      "icons/icon.png"
+    ],
+    "resources": [
+      "resources/themes/builtin/*",
+      "resources/samples/*",
+      "resources/fonts/**/*"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "12.0",
+      "frameworks": [],
+      "exceptionDomain": "",
+      "signingIdentity": null
+    }
+  }
+}

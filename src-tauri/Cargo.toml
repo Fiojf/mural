@@ -1,0 +1,123 @@
+[package]
+name = "mural"
+version = "0.1.0"
+description = "Mural — macOS wallpaper picker"
+authors = ["Mural Contributors"]
+license = "GPL-3.0-only"
+repository = "https://github.com/Fiojf/mural"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "mural_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api", "tray-icon", "image-png"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-os = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-single-instance = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+thiserror = "2"
+anyhow = "1"
+
+tokio = { version = "1", features = ["full"] }
+tokio-util = "0.7"
+futures = "0.3"
+async-trait = "0.1"
+
+dirs = "5"
+walkdir = "2"
+notify = "7"
+notify-debouncer-full = "0.4"
+
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "bmp", "tiff", "webp"] }
+webp = "0.3"
+blake3 = "1"
+sha2 = "0.10"
+hex = "0.4"
+
+global-hotkey = "0.6"
+sunrise = "1"
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.8"
+parking_lot = "0.12"
+
+[dev-dependencies]
+tempfile = "3"
+
+git2 = { version = "0.19", default-features = false, features = ["vendored-libgit2", "vendored-openssl"] }
+url = "2"
+
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.5"
+objc2-foundation = { version = "0.2", features = [
+  "NSURL",
+  "NSString",
+  "NSArray",
+  "NSDictionary",
+  "NSError",
+  "NSNotification",
+  "NSData",
+  "NSDate",
+  "NSValue",
+  "NSGeometry",
+  "NSObject",
+  "NSRunLoop",
+  "NSThread",
+] }
+objc2-app-kit = { version = "0.2", features = [
+  "NSApplication",
+  "NSWorkspace",
+  "NSWindow",
+  "NSPanel",
+  "NSScreen",
+  "NSView",
+  "NSVisualEffectView",
+  "NSEvent",
+  "NSColor",
+  "NSResponder",
+  "NSGraphics",
+  "NSImage",
+] }
+objc2-core-location = { version = "0.2", features = [
+  "CLLocationManager",
+  "CLLocation",
+] }
+objc2-av-foundation = { version = "0.2", features = [
+  "AVPlayer",
+  "AVPlayerItem",
+  "AVPlayerLayer",
+  "AVAsset",
+  "AVURLAsset",
+  "AVAssetImageGenerator",
+] }
+objc2-av-kit = { version = "0.2", features = ["AVPlayerView"] }
+objc2-quartz-core = { version = "0.2", features = ["CALayer", "CAAnimation"] }
+core-foundation = "0.10"
+core-graphics = "0.24"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = 3
+strip = true
+
+[[bin]]
+name = "mural"
+path = "src/main.rs"

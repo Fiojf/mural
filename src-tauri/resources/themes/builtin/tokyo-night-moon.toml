@@ -1,0 +1,11 @@
+name = "Tokyo Night Moon"
+base = "dark"
+
+[colors]
+bg = "#222436"
+surface = "#1e2030"
+text = "#c8d3f5"
+muted = "#a9b8e8"
+accent = "#82aaff"
+border = "#3b4261"
+selected_border = "#c099ff"
