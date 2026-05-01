@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn parse_minimal_theme() {
-        let s = r#"
+        let s = r##"
             name = "Test"
             base = "dark"
             [colors]
@@ -128,7 +128,7 @@ mod tests {
             accent = "#0af"
             border = "#222"
             selected_border = "#0af"
-        "#;
+        "##;
         let t: ThemeFile = toml::from_str(s).unwrap();
         assert_eq!(t.name, "Test");
         assert!(matches!(t.base, Base::Dark));

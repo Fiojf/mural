@@ -44,11 +44,11 @@ async fn pick_and_apply(state: &Arc<AppState>) -> anyhow::Result<()> {
     crate::wallpaper::apply(state, &pick.path, None)
 }
 
-async fn next_sunrise_or_sunset(state: &Arc<AppState>) -> Duration {
+async fn next_sunrise_or_sunset(_state: &Arc<AppState>) -> Duration {
     if let Ok(Some(loc)) = crate::location::request().await {
         let now = chrono::Utc::now();
         let date = now.date_naive();
-        let (sr, ss) = sunrise::sunrise_sunset(loc.lat, loc.lon, date.year(), date.month() as i32, date.day() as i32);
+        let (sr, ss) = sunrise::sunrise_sunset(loc.lat, loc.lon, date.year(), date.month(), date.day());
         let sr_ts = chrono::DateTime::from_timestamp(sr, 0).unwrap_or(now);
         let ss_ts = chrono::DateTime::from_timestamp(ss, 0).unwrap_or(now);
         let candidates = [sr_ts, ss_ts]

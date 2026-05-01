@@ -104,9 +104,9 @@ fn spawn_watcher(handle: AppHandle, state: Arc<AppState>, folder: PathBuf) -> Re
     let (tx, mut rx) = tokio::sync::mpsc::channel::<()>(8);
     let txc = tx.clone();
     std::thread::spawn(move || {
-        let mut debouncer = match new_debouncer(Duration::from_millis(250), None, move |res| {
+        let cb = move |res: notify_debouncer_full::DebounceEventResult| {
             if let Ok(events) = res {
-                let interesting = events.iter().any(|e: &notify_debouncer_full::DebouncedEvent| {
+                let interesting = events.iter().any(|e| {
                     matches!(
                         e.event.kind,
                         EventKind::Create(_) | EventKind::Remove(_) | EventKind::Modify(_)
@@ -116,7 +116,8 @@ fn spawn_watcher(handle: AppHandle, state: Arc<AppState>, folder: PathBuf) -> Re
                     let _ = txc.blocking_send(());
                 }
             }
-        }) {
+        };
+        let mut debouncer = match new_debouncer(Duration::from_millis(250), None, cb) {
             Ok(d) => d,
             Err(e) => {
                 tracing::error!("notify init failed: {e}");

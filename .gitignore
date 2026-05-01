@@ -8,3 +8,4 @@ src-tauri/gen/
 .vite/
 .env
 .env.local
+.claude/

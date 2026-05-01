@@ -92,8 +92,7 @@
     ],
     "resources": [
       "resources/themes/builtin/*",
-      "resources/samples/*",
-      "resources/fonts/**/*"
+      "resources/samples/*"
     ],
     "macOS": {
       "minimumSystemVersion": "12.0",

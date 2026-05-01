@@ -18,10 +18,11 @@ pub fn install(app: &AppHandle) -> Result<()> {
     let menu = Menu::with_items(app, &[&open, &settings, &separator, &quit])?;
 
     let icon = Image::from_bytes(include_bytes!("../icons/tray.png"))
-        .unwrap_or_else(|_| Image::from_bytes(&[]).unwrap_or_else(|_| Image::default()));
-    let _ = icon;
+        .map_err(|e| anyhow::anyhow!("tray icon decode: {e}"))?;
 
     let _tray = TrayIconBuilder::with_id("mural-tray")
+        .icon(icon)
+        .icon_as_template(true)
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
