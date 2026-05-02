@@ -37,7 +37,31 @@ pub fn apply(path: &Path, display_id: Option<&str>, cfg: &Config) -> Result<()> 
                 .map_err(|e| anyhow::anyhow!("setDesktopImageURL failed: {e:?}"))?;
         }
         Ok(())
-    })
+    })?;
+
+    // NSWorkspace only sets the wallpaper for the active Space on each screen.
+    // When per-Space rotation is OFF, the user expects the chosen image to
+    // apply to every Space. Drive that via System Events / AppleScript which
+    // iterates `every desktop` (one per Space, modern macOS).
+    if !cfg.per_space {
+        apply_all_spaces(&url_str);
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn apply_all_spaces(path: &str) {
+    let escaped = path.replace('\\', "\\\\").replace('"', "\\\"");
+    let script = format!(
+        r#"tell application "System Events" to tell every desktop to set picture to "{escaped}""#
+    );
+    if let Err(e) = std::process::Command::new("osascript")
+        .arg("-e")
+        .arg(&script)
+        .status()
+    {
+        tracing::warn!("osascript all-spaces wallpaper failed: {e}");
+    }
 }
 
 #[cfg(target_os = "macos")]

@@ -11,10 +11,26 @@ export function Sources() {
   const [refField, setRefField] = createSignal("");
   const [pathField, setPathField] = createSignal("");
   const [interval, setInterval] = createSignal(24);
+  const [showAdvanced, setShowAdvanced] = createSignal(false);
+  const [busy, setBusy] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+
+  function reset() {
+    setUrl("");
+    setRefField("");
+    setPathField("");
+    setInterval(24);
+    setShowAdvanced(false);
+    setError(null);
+  }
 
   async function submit() {
     setError(null);
+    if (!url().trim()) {
+      setError("Paste a GitHub URL or owner/repo.");
+      return;
+    }
+    setBusy(true);
     try {
       await ipc.sourcesAddGithub({
         url: url().trim(),
@@ -23,12 +39,12 @@ export function Sources() {
         sync_interval_hours: interval(),
       });
       setAdding(false);
-      setUrl("");
-      setRefField("");
-      setPathField("");
+      reset();
       void refetch();
     } catch (e: any) {
       setError(String(e?.message ?? e));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -95,39 +111,54 @@ export function Sources() {
 
       <Show when={adding()}>
         <div class="p-4 rounded-lg border border-[var(--color-border)] space-y-3">
-          <h2 class="text-sm font-medium">Add GitHub repository</h2>
+          <h2 class="text-sm font-medium">Add a GitHub wallpaper repo</h2>
+          <p class="text-xs text-[var(--color-muted)]">
+            Paste any GitHub URL — or just <code>owner/repo</code>. Mural shallow-clones the
+            default branch and picks up images automatically.
+          </p>
           <input
-            placeholder="https://github.com/user/wallpapers"
+            placeholder="dharmx/walls   or   https://github.com/dharmx/walls"
             value={url()}
+            autofocus
             onInput={(e) => setUrl(e.currentTarget.value)}
+            onKeyDown={(e) => e.key === "Enter" && void submit()}
             class="w-full px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
           />
-          <div class="flex gap-2">
-            <input
-              placeholder="ref (branch/tag/commit, optional)"
-              value={refField()}
-              onInput={(e) => setRefField(e.currentTarget.value)}
-              class="flex-1 px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
-            />
-            <input
-              placeholder="path (subdir, optional)"
-              value={pathField()}
-              onInput={(e) => setPathField(e.currentTarget.value)}
-              class="flex-1 px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
-            />
-          </div>
-          <label class="block text-sm">
-            Sync every
-            <select
-              value={interval()}
-              onChange={(e) => setInterval(Number(e.currentTarget.value))}
-              class="ml-2 px-2 py-1 bg-[var(--color-surface)] rounded-md text-sm"
-            >
-              {INTERVALS.map((h) => (
-                <option value={h}>{h}h</option>
-              ))}
-            </select>
-          </label>
+          <button
+            type="button"
+            class="text-xs text-[var(--color-muted)] hover:text-[var(--color-text)]"
+            onClick={() => setShowAdvanced(!showAdvanced())}
+          >
+            {showAdvanced() ? "− Hide" : "+ Advanced"} (branch, subfolder, sync interval)
+          </button>
+          <Show when={showAdvanced()}>
+            <div class="space-y-2 pt-1">
+              <input
+                placeholder="branch / tag / commit (default: main)"
+                value={refField()}
+                onInput={(e) => setRefField(e.currentTarget.value)}
+                class="w-full px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
+              />
+              <input
+                placeholder="subfolder inside repo (e.g. macOS)"
+                value={pathField()}
+                onInput={(e) => setPathField(e.currentTarget.value)}
+                class="w-full px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
+              />
+              <label class="block text-sm">
+                Sync every
+                <select
+                  value={interval()}
+                  onChange={(e) => setInterval(Number(e.currentTarget.value))}
+                  class="ml-2 px-2 py-1 bg-[var(--color-surface)] rounded-md text-sm"
+                >
+                  {INTERVALS.map((h) => (
+                    <option value={h}>{h === 168 ? "week" : `${h}h`}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </Show>
           <Show when={error()}>
             <div class="text-xs text-red-400">{error()}</div>
           </Show>
@@ -136,16 +167,17 @@ export function Sources() {
               class="px-3 py-2 rounded-md text-sm"
               onClick={() => {
                 setAdding(false);
-                setError(null);
+                reset();
               }}
             >
               Cancel
             </button>
             <button
-              class="px-3 py-2 rounded-md bg-[var(--color-accent)] text-[var(--color-bg)] text-sm font-medium"
+              class="px-3 py-2 rounded-md bg-[var(--color-accent)] text-[var(--color-bg)] text-sm font-medium disabled:opacity-50"
+              disabled={busy()}
               onClick={submit}
             >
-              Add
+              {busy() ? "Adding…" : "Add"}
             </button>
           </div>
         </div>

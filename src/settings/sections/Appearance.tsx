@@ -1,10 +1,8 @@
 import { For, Show, createResource } from "solid-js";
-import { ipc, type AnimationKind } from "../../lib/ipc";
+import { ipc } from "../../lib/ipc";
 import { config, patchConfig } from "../../lib/store";
 import { applyFont, applyTheme } from "../../lib/theme";
 import { ThemePreview } from "../ThemePreview";
-
-const ANIMATIONS: AnimationKind[] = ["fade", "scale", "slide-down", "none"];
 
 export function Appearance() {
   const [themes] = createResource(() => ipc.listThemes());
@@ -53,19 +51,6 @@ export function Appearance() {
                 class="px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
               >
                 <For each={fonts() ?? []}>{(f) => <option value={f.id}>{f.name}</option>}</For>
-              </select>
-            </Field>
-            <Field label="Open animation">
-              <select
-                value={c().open_animation}
-                onChange={(e) =>
-                  patchConfig({ open_animation: e.currentTarget.value as AnimationKind })
-                }
-                class="px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
-              >
-                {ANIMATIONS.map((a) => (
-                  <option value={a}>{a}</option>
-                ))}
               </select>
             </Field>
           </>
