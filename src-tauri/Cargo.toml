@@ -44,7 +44,7 @@ hex = "0.4"
 global-hotkey = "0.6"
 sunrise = "1"
 chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
-rand = "0.8"
+rand = "0.10"
 parking_lot = "0.12"
 
 url = "2"
