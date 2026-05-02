@@ -70,7 +70,7 @@ npm run tauri dev          # dev with HMR
 npm run tauri build        # release build → src-tauri/target/release/bundle/
 ```
 
-`libgit2` and `openssl` are vendored via `git2`'s features — no system deps needed.
+GitHub source sync shells out to `git` (Xcode Command Line Tools provides it).
 
 ## Usage
 

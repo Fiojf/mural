@@ -8,6 +8,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::time::SystemTime;
 use url::Url;
 
@@ -166,7 +167,19 @@ pub fn sync(cache_root: &Path, src: &GithubSource) -> Result<String> {
     }
 
     if dir.exists() && dir.join(".git").exists() {
-        fetch_and_reset(&dir, r#ref)?;
+        // Strip any stale lock files left by a crashed/aborted earlier sync.
+        for lock in [".git/index.lock", ".git/shallow.lock", ".git/HEAD.lock"] {
+            let _ = std::fs::remove_file(dir.join(lock));
+        }
+        if let Err(e) = fetch_and_reset(&dir, r#ref) {
+            tracing::warn!(
+                "fetch on {} failed ({e}); nuking cache dir and re-cloning",
+                src.id
+            );
+            std::fs::remove_dir_all(&dir).ok();
+            std::fs::create_dir_all(&dir).context("create cache dir")?;
+            shallow_clone(&src.url, r#ref, &dir)?;
+        }
     } else {
         if dir.exists() {
             std::fs::remove_dir_all(&dir).ok();
@@ -179,76 +192,64 @@ pub fn sync(cache_root: &Path, src: &GithubSource) -> Result<String> {
     Ok(sha)
 }
 
-fn shallow_clone(url: &str, r#ref: &str, dst: &Path) -> Result<()> {
-    let mut opts = git2::FetchOptions::new();
-    opts.depth(1);
-    let mut builder = git2::build::RepoBuilder::new();
-    builder.fetch_options(opts);
-    if r#ref != "HEAD" {
-        builder.branch(r#ref);
+fn run_git(args: &[&str], cwd: Option<&Path>) -> Result<std::process::Output> {
+    let mut cmd = Command::new("git");
+    if let Some(d) = cwd {
+        cmd.current_dir(d);
     }
-    builder
-        .clone(url, dst)
-        .with_context(|| format!("clone {url} into {}", dst.display()))?;
+    let out = cmd
+        .args(args)
+        .env("GIT_TERMINAL_PROMPT", "0")
+        .output()
+        .context("invoke git (Xcode CLT installed?)")?;
+    if !out.status.success() {
+        bail!(
+            "git {} failed: {}",
+            args.join(" "),
+            String::from_utf8_lossy(&out.stderr).trim()
+        );
+    }
+    Ok(out)
+}
+
+fn shallow_clone(url: &str, r#ref: &str, dst: &Path) -> Result<()> {
+    let mut args: Vec<&str> = vec!["clone", "--depth", "1"];
+    if r#ref != "HEAD" {
+        args.push("--branch");
+        args.push(r#ref);
+    }
+    let dst_str = dst.to_str().context("dst not UTF-8")?;
+    args.push(url);
+    args.push(dst_str);
+    run_git(&args, None)?;
     Ok(())
 }
 
 fn fetch_and_reset(dir: &Path, r#ref: &str) -> Result<()> {
-    let repo = git2::Repository::open(dir).context("open repo")?;
-    let mut remote = repo.find_remote("origin").context("find origin")?;
-    let refspec = if r#ref == "HEAD" {
-        "+HEAD:refs/remotes/origin/HEAD".to_string()
-    } else {
-        format!("+refs/heads/{r}:refs/remotes/origin/{r}", r = r#ref)
-    };
-    let mut opts = git2::FetchOptions::new();
-    opts.depth(1);
-    remote
-        .fetch(&[refspec.as_str()], Some(&mut opts), None)
-        .context("git fetch")?;
-    let target = if r#ref == "HEAD" {
-        repo.find_reference("refs/remotes/origin/HEAD")?
-            .resolve()?
-            .target()
-            .ok_or_else(|| anyhow!("origin/HEAD has no target"))?
-    } else {
-        repo.find_reference(&format!("refs/remotes/origin/{}", r#ref))?
-            .target()
-            .ok_or_else(|| anyhow!("ref has no target"))?
-    };
-    let obj = repo
-        .find_object(target, None)
-        .context("find target object")?;
-    repo.reset(&obj, git2::ResetType::Hard, None)
-        .context("git reset --hard")?;
+    let needle = if r#ref == "HEAD" { "HEAD" } else { r#ref };
+    run_git(&["fetch", "--depth", "1", "origin", needle], Some(dir))?;
+    run_git(&["reset", "--hard", "FETCH_HEAD"], Some(dir))?;
     Ok(())
 }
 
 fn head_sha(dir: &Path) -> Option<String> {
-    let repo = git2::Repository::open(dir).ok()?;
-    let head = repo.head().ok()?;
-    let oid = head.target()?;
-    Some(oid.to_string())
+    let out = run_git(&["rev-parse", "HEAD"], Some(dir)).ok()?;
+    Some(String::from_utf8_lossy(&out.stdout).trim().to_string())
 }
 
 /// Cheap remote HEAD SHA lookup without full fetch.
 fn ls_remote_sha(url: &str, r#ref: &str) -> Result<String> {
-    let temp =
-        std::env::temp_dir().join(format!("mural-lsremote-{}", stable_key(url, Some(r#ref))));
-    std::fs::create_dir_all(&temp).ok();
-    let repo = git2::Repository::init(&temp).context("temp repo init")?;
-    let mut remote = repo.remote_anonymous(url).context("anonymous remote")?;
-    remote
-        .connect(git2::Direction::Fetch)
-        .context("ls-remote connect")?;
-    let list = remote.list().context("ls-remote list")?;
     let needle = if r#ref == "HEAD" { "HEAD" } else { r#ref };
-    let sha = list
-        .iter()
-        .find(|h| h.name() == needle || h.name() == format!("refs/heads/{needle}").as_str())
-        .map(|h| h.oid().to_string())
-        .ok_or_else(|| anyhow!("ref {needle} not found on remote"))?;
-    let _ = std::fs::remove_dir_all(&temp);
+    let out = run_git(&["ls-remote", url, needle], None)?;
+    let line = String::from_utf8_lossy(&out.stdout);
+    let sha = line
+        .split_whitespace()
+        .next()
+        .ok_or_else(|| anyhow!("ls-remote returned nothing for {needle}"))?
+        .to_string();
+    if sha.len() != 40 {
+        bail!("unexpected ls-remote output: {line}");
+    }
     Ok(sha)
 }
 

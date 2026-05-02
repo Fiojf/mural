@@ -52,6 +52,10 @@ pub struct GithubState {
 pub struct SourceRegistry {
     pub cache_root: PathBuf,
     pub statuses: RwLock<std::collections::HashMap<String, GithubState>>,
+    /// Per-source serializer: prevents two sync_one calls (recurring loop +
+    /// manual "Sync now" click) from racing on the same `.git` dir and
+    /// corrupting the lock files.
+    pub sync_locks: parking_lot::Mutex<std::collections::HashMap<String, Arc<parking_lot::Mutex<()>>>>,
 }
 
 impl SourceRegistry {
@@ -61,7 +65,16 @@ impl SourceRegistry {
         Ok(Self {
             cache_root,
             statuses: RwLock::new(std::collections::HashMap::new()),
+            sync_locks: parking_lot::Mutex::new(std::collections::HashMap::new()),
         })
+    }
+
+    pub fn sync_lock_for(&self, id: &str) -> Arc<parking_lot::Mutex<()>> {
+        self.sync_locks
+            .lock()
+            .entry(id.to_string())
+            .or_insert_with(|| Arc::new(parking_lot::Mutex::new(())))
+            .clone()
     }
 
     pub fn list(&self, cfg: &Config) -> Vec<SourceEntry> {
@@ -170,7 +183,12 @@ pub async fn sync_one(handle: &AppHandle, state: &Arc<AppState>, src: &GithubSou
     );
     let cache_root = state.sources.cache_root.clone();
     let src_clone = src.clone();
-    let result = tokio::task::spawn_blocking(move || github::sync(&cache_root, &src_clone)).await?;
+    let lock = state.sources.sync_lock_for(&src.id);
+    let result = tokio::task::spawn_blocking(move || {
+        let _guard = lock.lock();
+        github::sync(&cache_root, &src_clone)
+    })
+    .await?;
     match result {
         Ok(new_sha) => {
             // Update last_sync metadata in config

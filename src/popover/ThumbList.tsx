@@ -17,9 +17,21 @@ export function ThumbList(props: Props) {
     void ipc.setWallpaper(item.path, activeDisplay());
   };
 
+  const onWheel = (e: WheelEvent) => {
+    if (!horizontal()) return;
+    const el = e.currentTarget as HTMLDivElement;
+    // Trackpads already deliver deltaX for horizontal swipes; only redirect
+    // when the user spins a mouse wheel (deltaY dominant, deltaX tiny).
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      el.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  };
+
   return (
     <div
       class="h-full w-full"
+      onWheel={onWheel}
       classList={{
         "overflow-x-auto overflow-y-hidden": horizontal(),
         "overflow-y-auto overflow-x-hidden": !horizontal(),
