@@ -188,8 +188,34 @@ pub fn sync(cache_root: &Path, src: &GithubSource) -> Result<String> {
         shallow_clone(&src.url, r#ref, &dir)?;
     }
 
+    prune_non_images(&dir);
     let sha = head_sha(&dir).or(remote_sha).unwrap_or_default();
     Ok(sha)
+}
+
+/// Walk the cloned repo and delete every regular file that isn't a supported
+/// image / video. Leaves `.git/` alone so subsequent fetches still work, and
+/// removes now-empty subdirectories afterwards.
+fn prune_non_images(dir: &Path) {
+    let mut empty_candidates: Vec<PathBuf> = Vec::new();
+    for entry in walkdir::WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+        // Skip everything inside .git
+        if entry.path().components().any(|c| c.as_os_str() == ".git") {
+            continue;
+        }
+        if entry.file_type().is_file() {
+            if classify(entry.path()).is_none() {
+                let _ = std::fs::remove_file(entry.path());
+            }
+        } else if entry.file_type().is_dir() && entry.depth() > 0 {
+            empty_candidates.push(entry.path().to_path_buf());
+        }
+    }
+    // Prune empty dirs deepest-first.
+    empty_candidates.sort_by_key(|p| std::cmp::Reverse(p.components().count()));
+    for d in empty_candidates {
+        let _ = std::fs::remove_dir(&d); // only succeeds if empty
+    }
 }
 
 fn run_git(args: &[&str], cwd: Option<&Path>) -> Result<std::process::Output> {
