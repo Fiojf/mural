@@ -26,13 +26,9 @@ tauri-plugin-single-instance = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
-thiserror = "2"
 anyhow = "1"
 
-tokio = { version = "1", features = ["full"] }
-tokio-util = "0.7"
-futures = "0.3"
-async-trait = "0.1"
+tokio = { version = "1", default-features = false, features = ["rt-multi-thread", "sync", "time", "macros"] }
 
 dirs = "5"
 walkdir = "2"
@@ -47,7 +43,7 @@ hex = "0.4"
 
 global-hotkey = "0.6"
 sunrise = "1"
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
 rand = "0.8"
 parking_lot = "0.12"
 
@@ -62,49 +58,22 @@ tempfile = "3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6"
-objc2-foundation = { version = "0.3", features = [
+objc2-foundation = { version = "0.3", default-features = false, features = [
+  "std",
   "NSURL",
   "NSString",
-  "NSArray",
   "NSDictionary",
   "NSError",
-  "NSNotification",
-  "NSData",
-  "NSDate",
   "NSValue",
   "NSGeometry",
   "NSObject",
-  "NSRunLoop",
-  "NSThread",
 ] }
-objc2-app-kit = { version = "0.3", features = [
-  "NSApplication",
+objc2-app-kit = { version = "0.3", default-features = false, features = [
+  "std",
   "NSWorkspace",
   "NSWindow",
-  "NSPanel",
   "NSScreen",
-  "NSView",
-  "NSVisualEffectView",
-  "NSEvent",
-  "NSColor",
-  "NSResponder",
-  "NSGraphics",
-  "NSImage",
 ] }
-objc2-core-location = { version = "0.3", features = [
-  "CLLocationManager",
-  "CLLocation",
-] }
-objc2-av-foundation = { version = "0.3", features = [
-  "AVPlayer",
-  "AVPlayerItem",
-  "AVPlayerLayer",
-  "AVAsset",
-  "AVAssetImageGenerator",
-] }
-objc2-quartz-core = { version = "0.3", features = ["CALayer", "CAAnimation"] }
-core-foundation = "0.10"
-core-graphics = "0.24"
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]
@@ -115,6 +84,12 @@ codegen-units = 1
 lto = true
 opt-level = 3
 strip = true
+
+# Speed up release builds of dependencies that hit our hot paths (image
+# decode/encode, blake3 hashing) without paying the full release-build cost
+# on Mural's own crates during iteration.
+[profile.dev.package."*"]
+opt-level = 2
 
 [[bin]]
 name = "mural"

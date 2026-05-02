@@ -1,10 +1,9 @@
-import { For, Show, createEffect, createMemo, onCleanup, onMount } from "solid-js";
+import { For, Show, createMemo, onCleanup, onMount } from "solid-js";
 import { Searchbar } from "./Searchbar";
 import { ThumbList } from "./ThumbList";
 import { ThumbGrid } from "./ThumbGrid";
 import { DisplayTabs } from "./DisplayTabs";
 import {
-  activeDisplay,
   activeSource,
   config,
   refetchWallpapers,
@@ -30,9 +29,7 @@ export function Popover() {
     onCleanup(() => window.removeEventListener("keydown", onKey));
   });
 
-  onCleanup(() => {
-    unlistenList?.();
-  });
+  onCleanup(() => unlistenList?.());
 
   const sources = createMemo(() => {
     const items = wallpapers() ?? [];
@@ -44,14 +41,17 @@ export function Popover() {
   const filtered = createMemo(() => {
     const items = wallpapers() ?? [];
     const cfg = config();
+    const stripExt = cfg?.strip_extension ?? false;
     const q = search().toLowerCase().trim();
     const src = activeSource();
-    const disp = activeDisplay();
-    let list = items;
+    let list = items.map((it) => ({
+      ...it,
+      display_name: stripExt ? stripExtension(it.name) : it.name,
+    }));
     if (src) list = list.filter((x) => x.source_id === src);
     if (q) list = list.filter((x) => x.display_name.toLowerCase().includes(q));
     if (cfg) {
-      const cmp = (a: (typeof items)[number], b: (typeof items)[number]) => {
+      list.sort((a, b) => {
         switch (cfg.sort) {
           case "name_asc":
             return a.display_name.localeCompare(b.display_name);
@@ -64,20 +64,9 @@ export function Popover() {
           case "random":
             return Math.random() - 0.5;
         }
-      };
-      list = [...list].sort(cmp);
+      });
     }
-    void disp;
     return list;
-  });
-
-  createEffect(() => {
-    const cfg = config();
-    if (!cfg) return;
-    const items = wallpapers() ?? [];
-    for (const it of items) {
-      it.display_name = cfg.strip_extension ? stripExtension(it.name) : it.name;
-    }
   });
 
   return (

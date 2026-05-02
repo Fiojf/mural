@@ -4,7 +4,6 @@
 //! Additional GitHub-repo sources are configured by the user.
 
 pub mod github;
-pub mod local;
 
 use anyhow::Result;
 use parking_lot::RwLock;

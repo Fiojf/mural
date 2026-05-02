@@ -118,12 +118,26 @@ pub fn list_wallpapers(state: Shared<'_>) -> Vec<WallpaperItem> {
 
     // Generate (or look up) the cached thumbnail for each item. The absolute
     // path is returned as `thumb_url`; the frontend converts it to a webview
-    // URL via Tauri's `convertFileSrc`.
-    for item in items.iter_mut() {
-        if let Ok(p) = state.thumbs.ensure(&item.path, &item.source_id) {
-            item.thumb_url = Some(p.to_string_lossy().into_owned());
+    // URL via Tauri's `convertFileSrc`. Parallelised across a small thread
+    // pool — first-run thumb gen on a large folder is otherwise serial and
+    // dominates the IPC latency.
+    let thumbs = &state.thumbs;
+    std::thread::scope(|s| {
+        let chunk = (items.len() / 4).max(1);
+        let mut handles = Vec::new();
+        for slice in items.chunks_mut(chunk) {
+            handles.push(s.spawn(move || {
+                for item in slice.iter_mut() {
+                    if let Ok(p) = thumbs.ensure(&item.path, &item.source_id) {
+                        item.thumb_url = Some(p.to_string_lossy().into_owned());
+                    }
+                }
+            }));
         }
-    }
+        for h in handles {
+            let _ = h.join();
+        }
+    });
     items
 }
 
@@ -134,11 +148,10 @@ pub fn set_wallpaper(
     app: AppHandle,
     state: Shared<'_>,
 ) -> Result<(), String> {
-    // Hide the popover first so the main runloop isn't busy compositing it
-    // while NSWorkspace hands the image to WindowServer. Then enqueue the
-    // apply on the main thread (AppKit requirement). run_on_main_thread
-    // returns as soon as the closure is queued, keeping the IPC fast.
-    let _ = popover::hide(&app);
+    // NSWorkspace.setDesktopImageURL must run on the main thread, but we don't
+    // want to block the IPC handler waiting for it. Queue it on the main
+    // thread via Tauri's runtime — the run_on_main_thread call returns as
+    // soon as the closure is enqueued.
     let state_arc: Arc<AppState> = (*state).clone();
     app.run_on_main_thread(move || {
         if let Err(e) = wallpaper::apply(&state_arc, &path, display_id.as_deref()) {
