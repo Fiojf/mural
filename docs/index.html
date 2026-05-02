@@ -19,13 +19,13 @@
 <meta name="twitter:title" content="Mural &mdash; Press &#8984;&#8679;W. Click. Done."/>
 <meta name="twitter:description" content="A menu-bar wallpaper picker for macOS. Open source, 5 MB, no account."/>
 <meta name="twitter:image" content="https://fiojf.github.io/mural/assets/og.png"/>
-<meta name="theme-color" content="#0e0e14" media="(prefers-color-scheme: dark)"/>
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)"/>
+<meta name="theme-color" content="#0c0c0c" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#fffbf2" media="(prefers-color-scheme: light)"/>
 <script>(function(){var d=document.documentElement;d.classList.add('js');try{var t=localStorage.getItem('mural-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}d.setAttribute('data-theme',t);}catch(e){}})();</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
 <link rel="stylesheet" href="assets/style.css"/>
 
 <script type="application/ld+json">
@@ -53,7 +53,7 @@
       <a href="#what">What</a>
       <a href="#themes">Themes</a>
       <a href="#sources">Sources</a>
-      <a href="#beta">Beta notes</a>
+      <a href="#beta">Beta</a>
     </nav>
 
     <div class="nav-actions">
@@ -78,86 +78,68 @@
     <a href="#what">What</a>
     <a href="#themes">Themes</a>
     <a href="#sources">Sources</a>
-    <a href="#beta">Beta notes</a>
+    <a href="#beta">Beta</a>
     <a class="btn btn-primary" href="https://github.com/Fiojf/mural/releases/tag/v0.1.0-beta.1">Download</a>
   </div>
 </header>
 
 <main id="main">
 
-<!-- HERO -->
+<!-- HERO (pure type, no mockup) -->
 <section class="hero" id="top">
-  <div class="hero-bg" aria-hidden="true">
-    <span class="blob"></span>
-  </div>
-
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <p class="caption">Mural &mdash; beta. macOS only.</p>
-      <h1 class="h1 reveal">Press <em class="serif">&#8984;&#8679;W</em>. Click. Done.</h1>
-      <p class="lede reveal" style="--reveal-delay:80ms">Mural is a menu-bar app that puts every wallpaper you own behind a hotkey. No Settings pane to dig through, no preview window to wait on, no sync service. Drop images in <code>~/Mural</code>, hit the keystroke, click. The desktop changes the moment your finger leaves the trackpad.</p>
-      <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/Fiojf/mural/releases/download/v0.1.0-beta.1/Mural-0.1.0-beta.1.dmg">
-          Download for macOS &mdash; 5 MB
-        </a>
-      </div>
-      <p class="trust">
-        <a class="text-link" href="https://github.com/Fiojf/mural" target="_blank" rel="noopener">Source on GitHub</a>
-        &nbsp;&middot;&nbsp; Free. GPL-3.0. Apple Silicon DMG soon.
-      </p>
+  <div class="hero-bg" aria-hidden="true"><span class="blob"></span></div>
+  <div class="container hero-inner">
+    <p class="caption">Mural &mdash; beta. macOS only.</p>
+    <h1 class="h1 reveal"><em class="serif">Press &#8984;&#8679;W.</em><br/><em class="serif">Click. Done.</em></h1>
+    <p class="lede reveal" style="--reveal-delay:80ms">A menu-bar wallpaper picker for macOS. No Settings pane. No preview window. No sync service. Drop images in <code>~/Mural</code>, hit the keystroke, click. The desktop changes.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/Fiojf/mural/releases/download/v0.1.0-beta.1/Mural-0.1.0-beta.1.dmg">Download for macOS &mdash; 5 MB</a>
     </div>
+    <p class="trust">
+      <a class="text-link" href="https://github.com/Fiojf/mural" target="_blank" rel="noopener">Source on GitHub</a>
+      &nbsp;&middot;&nbsp; Free. GPL-3.0. Apple Silicon DMG soon.
+    </p>
+  </div>
+</section>
 
-    <div class="hero-mockup-wrap">
-      <div class="mockup" role="img" aria-label="Mural popover preview">
-        <div class="popover">
-          <div class="po-header">
-            <div class="po-search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/>
-              </svg>
-              <span class="po-search-text">Search wallpapers</span>
-            </div>
-            <span class="po-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h0a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v0a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>
-              </svg>
-            </span>
+<!-- PREVIEW: full-width flat mockup -->
+<section class="preview" aria-label="Mural popover preview">
+  <div class="container">
+    <div class="mockup">
+      <div class="popover">
+        <div class="po-header">
+          <div class="po-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/>
+            </svg>
+            <span class="po-search-text">Search wallpapers</span>
           </div>
-
-          <div class="po-rail">
-            <figure class="thumb t-aurora">
-              <span class="tile"></span>
-              <figcaption>monterey-dawn.heic</figcaption>
-            </figure>
-            <figure class="thumb t-mint">
-              <span class="tile"></span>
-              <figcaption>kanagawa-wave.jpg</figcaption>
-            </figure>
-            <figure class="thumb t-night selected">
-              <span class="tile">
-                <span class="tile-check" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-                </span>
+          <span class="po-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3h0a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8v0a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>
+            </svg>
+          </span>
+        </div>
+        <div class="po-rail">
+          <figure class="thumb t-aurora"><span class="tile"></span><figcaption>monterey-dawn.heic</figcaption></figure>
+          <figure class="thumb t-mint"><span class="tile"></span><figcaption>kanagawa-wave.jpg</figcaption></figure>
+          <figure class="thumb t-night selected">
+            <span class="tile">
+              <span class="tile-check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
               </span>
-              <figcaption>oslo-night.png</figcaption>
-            </figure>
-            <figure class="thumb t-rose">
-              <span class="tile"></span>
-              <figcaption>ros&eacute;-pine.png</figcaption>
-            </figure>
-            <figure class="thumb t-sunset">
-              <span class="tile"></span>
-              <figcaption>death-valley.jpg</figcaption>
-            </figure>
-          </div>
-
-          <div class="po-foot">
-            <span class="po-pill">~/Mural</span>
-            <span class="po-pill">dharmx/walls</span>
-            <span class="po-spacer"></span>
-            <span class="po-pill po-pill-mute">128 wallpapers</span>
-          </div>
+            </span>
+            <figcaption>oslo-night.png</figcaption>
+          </figure>
+          <figure class="thumb t-rose"><span class="tile"></span><figcaption>ros&eacute;-pine.png</figcaption></figure>
+          <figure class="thumb t-sunset"><span class="tile"></span><figcaption>death-valley.jpg</figcaption></figure>
+        </div>
+        <div class="po-foot">
+          <span class="po-pill">~/Mural</span>
+          <span class="po-pill">dharmx/walls</span>
+          <span class="po-spacer"></span>
+          <span class="po-pill po-pill-mute">128 wallpapers</span>
         </div>
       </div>
     </div>
@@ -167,17 +149,20 @@
 <!-- WHAT -->
 <section class="what" id="what">
   <div class="container what-inner">
-    <h2 class="h2">A wallpaper picker. Nothing more.</h2>
-    <p>Most wallpaper apps want to be a service. They sync, account, push, recommend. Mural sits in the menu bar and reads a folder. That&apos;s the whole architecture. The app is a Tauri binary, 5 MB on disk, opens a popover when you press the hotkey, applies a wallpaper when you click one. There is no cloud. There is no inbox. There is no premium tier.</p>
-    <p>You bring the images. Drop them into <code>~/Mural</code>, or point Mural at a public GitHub repo of wallpapers. Mural watches the folder, shallow-clones the repo, caches thumbnails by content hash. It stays out of the way until you summon it.</p>
+    <span class="fleuron" aria-hidden="true">&#10086;</span>
+    <h2 class="h2"><em class="serif">A wallpaper picker. Nothing more.</em></h2>
+    <p>Most wallpaper apps want to be a service. They sync. They account. They recommend. Mural reads a folder.</p>
+    <p>That is the architecture. A 5 MB Tauri binary. Sits in the menu bar. Opens a popover when you press the hotkey. Applies a wallpaper when you click one. No cloud. No inbox. No premium tier.</p>
+    <p>You bring the images. Drop them in <code>~/Mural</code>, or point Mural at a public GitHub repo. Mural watches the folder, shallow-clones the repo, caches thumbnails by content hash. Then it stays out of the way.</p>
   </div>
 </section>
 
 <!-- THEMES -->
 <section class="themes" id="themes">
   <div class="container">
-    <h2 class="h2">Forty-six themes.</h2>
-    <p class="dek">Catppuccin, Tokyo Night, Rose Pine, Gruvbox, Nord, Everforest, Ayu, Dracula and friends. Drop a TOML in your config folder and Mural reloads it &mdash; no restart.</p>
+    <span class="fleuron" aria-hidden="true">&#10086;</span>
+    <h2 class="h2"><em class="serif">Forty-six themes.</em></h2>
+    <p class="dek">Catppuccin, Tokyo Night, Rose Pine, Gruvbox, Nord, Everforest, Ayu, Dracula. Drop a TOML in the config folder &mdash; reload, no restart.</p>
   </div>
 
   <div class="theme-rail-wrap">
@@ -238,7 +223,7 @@
   <div class="container">
     <details class="byo">
       <summary>Bring your own.</summary>
-      <p>Drop a TOML at the path below. Mural picks it up on next launch &mdash; no restart needed for new files in the folder.</p>
+      <p>Drop a TOML at the path below. Mural reads it on next launch.</p>
       <button class="theme-path" data-copy="~/Library/Application Support/Mural/themes/" type="button" aria-label="Copy themes folder path">
         <code>~/Library/Application Support/Mural/themes/</code>
         <span class="copy-hint">Copy</span>
@@ -251,14 +236,14 @@
 <section class="sources" id="sources">
   <div class="container sources-grid">
     <div class="sources-copy">
-      <h2 class="h2">Two source kinds, plus your own.</h2>
-      <p>Mural reads images from a local folder and from any number of GitHub repositories. Local sources use <code>notify</code> to watch for new files. GitHub sources shallow-clone via libgit2 and re-sync on the interval you set, with a cheap <code>git ls-remote HEAD</code> check that skips the fetch when the SHA hasn&apos;t moved.</p>
+      <span class="fleuron" aria-hidden="true">&#10086;</span>
+      <h2 class="h2"><em class="serif">Two source kinds.</em></h2>
+      <p>Local folders and any GitHub repo. Local sources watch via <code>notify</code>. GitHub sources shallow-clone via libgit2 and re-sync on the interval you set, with a <code>git ls-remote HEAD</code> check that skips the fetch when the SHA hasn&apos;t moved.</p>
     </div>
 
     <div class="code-pane" id="codePane">
       <pre class="code"><code><span class="c-com"># ~/Library/Application Support/Mural/config.toml</span>
 
-<span class="c-com"># Pull from a curated wallpaper repo</span>
 <span class="c-bk">[[sources]]</span>
 <span class="c-key">kind</span> = <span class="c-str">"github"</span>
 <span class="c-key">url</span>  = <span class="c-str">"https://github.com/dharmx/walls"</span>
@@ -266,7 +251,6 @@
 <span class="c-key">path</span> = <span class="c-str">"macOS"</span>
 <span class="c-key">sync_interval_hours</span> = <span class="c-num">24</span>
 
-<span class="c-com"># Plus your own folder</span>
 <span class="c-bk">[[sources]]</span>
 <span class="c-key">kind</span> = <span class="c-str">"local"</span>
 <span class="c-key">path</span> = <span class="c-str">"~/Mural"</span></code></pre>
@@ -278,8 +262,9 @@
 <!-- THE MECHANIC -->
 <section class="mechanic">
   <div class="container mechanic-inner">
-    <h2 class="h2">The mechanic.</h2>
-    <p>Drop wallpapers in <code>~/Mural</code> (or any GitHub repo). Press <span class="kbd-inline"><kbd>&#8984;</kbd><kbd>&#8679;</kbd><kbd>W</kbd></span> from any app, any Space, any Stage Manager pile. The popover floats above whatever you were doing. Click a thumbnail &mdash; the wallpaper applies in the same frame. Click outside or hit <kbd>Esc</kbd>, popover dismisses, you go back to work.</p>
+    <span class="fleuron" aria-hidden="true">&#10086;</span>
+    <h2 class="h2"><em class="serif">The mechanic.</em></h2>
+    <p>Drop wallpapers in <code>~/Mural</code>. Press <span class="kbd-inline"><kbd>&#8984;</kbd><kbd>&#8679;</kbd><kbd>W</kbd></span> from any app, any Space, any Stage Manager pile. Click a thumbnail. The wallpaper applies in the same frame. <kbd>Esc</kbd> dismisses. You go back to work.</p>
   </div>
 </section>
 
@@ -287,15 +272,16 @@
 <section class="beta" id="beta">
   <div class="container beta-grid">
     <div>
-      <h2 class="h2">Honest beta notes.</h2>
-      <p class="dek">It&apos;s a 0.1. Some edges are still rough. Here is what to know before you install.</p>
+      <span class="fleuron" aria-hidden="true">&#10086;</span>
+      <h2 class="h2"><em class="serif">Honest beta notes.</em></h2>
+      <p class="dek">It&apos;s a 0.1. Some edges are still rough.</p>
     </div>
     <ul class="beta-list">
-      <li><strong>Unsigned.</strong> Gatekeeper warns the first time. Right-click the app &rarr; Open.</li>
-      <li><strong>x86_64 DMG only.</strong> Apple Silicon native build comes in the next release.</li>
-      <li><strong>Lock-screen wallpaper</strong> is best-effort &mdash; admin <code>osascript</code> copy to <code>/Library/Caches/com.apple.desktop.admin.png</code>.</li>
-      <li><strong>Video wallpapers</strong> fall through to a static apply. A real desktop overlay layer is on the list.</li>
-      <li><strong>Per-Space targeting</strong> and the <strong>CoreLocation</strong> sunrise/sunset hook are stubs for now.</li>
+      <li><strong>Unsigned.</strong> Gatekeeper warns the first time. Right-click &rarr; Open.</li>
+      <li><strong>x86_64 DMG only.</strong> Apple Silicon native build comes next.</li>
+      <li><strong>Lock-screen wallpaper</strong> is best-effort. Admin <code>osascript</code> copy.</li>
+      <li><strong>Video wallpapers</strong> fall through to a static apply. Real overlay layer is on the list.</li>
+      <li><strong>Per-Space targeting</strong> and CoreLocation sunrise/sunset are stubs.</li>
       <li><strong>HEIC decoding</strong> shells out to <code>sips</code>. No libheif bundled.</li>
     </ul>
   </div>

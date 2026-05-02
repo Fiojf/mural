@@ -73,12 +73,6 @@
           "$HOME/Library/Application Support/Mural/**"
         ]
       }
-    },
-    "trayIcon": {
-      "id": "mural-tray",
-      "iconPath": "icons/tray.png",
-      "iconAsTemplate": true,
-      "menuOnLeftClick": false
     }
   },
   "bundle": {
