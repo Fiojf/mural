@@ -25,7 +25,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"/>
 <link rel="stylesheet" href="assets/style.css"/>
 
 <script type="application/ld+json">
@@ -98,6 +98,10 @@
     <p class="trust">
       <a class="text-link" href="https://github.com/Fiojf/mural" target="_blank" rel="noopener">Source on GitHub</a>
       &nbsp;&middot;&nbsp; Free. Open source. Native Apple Silicon build coming soon.
+    </p>
+    <p class="hero-hint" aria-live="polite">
+      <span class="hint-dot" aria-hidden="true"></span>
+      Tip &mdash; press <kbd>&#8984;</kbd><kbd>&#8679;</kbd><kbd>W</kbd> from anywhere on this page.
     </p>
   </div>
 </section>
@@ -251,6 +255,16 @@
   </div>
 </section>
 
+<!-- FAST -->
+<section class="fast">
+  <div class="container fast-inner">
+    <span class="fleuron" aria-hidden="true">&#10086;</span>
+    <h2 class="h2"><em class="serif">Fast.</em></h2>
+    <p>Five megabytes on disk. The picker draws before your finger leaves the keys. The wallpaper applies the same instant you click &mdash; no spinner, no preview, no confirmation dialog.</p>
+    <p>Mural is native macOS code, not a website pretending to be an app. The whole package is smaller than a single iPhone photo.</p>
+  </div>
+</section>
+
 <!-- BETA NOTES -->
 <section class="beta" id="beta">
   <div class="container beta-grid">
@@ -292,6 +306,74 @@
     </nav>
   </div>
 </footer>
+
+<!-- SUMMON OVERLAY -->
+<div class="summon" id="summon" hidden aria-hidden="true">
+  <div class="summon-scrim" data-summon-close></div>
+  <div class="summon-panel" role="dialog" aria-label="Mural picker (demo)" aria-modal="true">
+    <div class="popover">
+      <div class="po-header">
+        <div class="po-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="6"/><path d="M20 20l-3.5-3.5"/>
+          </svg>
+          <span class="po-search-text">Try clicking a wallpaper</span>
+        </div>
+        <button class="po-icon summon-x" type="button" data-summon-close aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="po-rail summon-rail">
+        <button class="thumb t-aurora summon-thumb" type="button" data-bg="#0c1024" data-surface="#161b3a" data-accent="#7c83ff" data-text="#e9eaff">
+          <span class="tile"></span>
+          <span class="thumb-cap">aurora</span>
+        </button>
+        <button class="thumb t-mint summon-thumb" type="button" data-bg="#0a1815" data-surface="#0f221d" data-accent="#34d399" data-text="#dff7ec">
+          <span class="tile"></span>
+          <span class="thumb-cap">mint</span>
+        </button>
+        <button class="thumb t-night summon-thumb" type="button" data-bg="#070a16" data-surface="#0e1428" data-accent="#60a5fa" data-text="#dbeafe">
+          <span class="tile"></span>
+          <span class="thumb-cap">night</span>
+        </button>
+        <button class="thumb t-rose summon-thumb" type="button" data-bg="#1a0712" data-surface="#2a0d1d" data-accent="#f472b6" data-text="#fbe8f1">
+          <span class="tile"></span>
+          <span class="thumb-cap">rose</span>
+        </button>
+        <button class="thumb t-sunset summon-thumb" type="button" data-bg="#1a0e05" data-surface="#28160a" data-accent="#fb923c" data-text="#fde9d2">
+          <span class="tile"></span>
+          <span class="thumb-cap">sunset</span>
+        </button>
+        <button class="thumb t-aurora summon-thumb" type="button" data-bg="#0e1a0e" data-surface="#16291a" data-accent="#a3e635" data-text="#ecfccb" style="--swap:lime">
+          <span class="tile" style="background:linear-gradient(135deg,#14532d 0%,#65a30d 50%,#a3e635 100%)"></span>
+          <span class="thumb-cap">moss</span>
+        </button>
+        <button class="thumb t-night summon-thumb" type="button" data-bg="#1a1404" data-surface="#28210a" data-accent="#facc15" data-text="#fff7d4">
+          <span class="tile" style="background:linear-gradient(135deg,#422006 0%,#b45309 50%,#facc15 100%)"></span>
+          <span class="thumb-cap">amber</span>
+        </button>
+        <button class="thumb t-rose summon-thumb" type="button" data-bg="#0a0a0a" data-surface="#171717" data-accent="#e5e5e5" data-text="#fafafa">
+          <span class="tile" style="background:linear-gradient(135deg,#171717 0%,#525252 60%,#e5e5e5 100%)"></span>
+          <span class="thumb-cap">mono</span>
+        </button>
+      </div>
+      <div class="po-foot">
+        <span class="po-pill">demo only</span>
+        <span class="po-spacer"></span>
+        <span class="po-pill po-pill-mute">esc to close</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="theme-reset" id="themeReset" type="button" hidden aria-label="Reset page theme">
+  <span>Reset theme</span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>
+  </svg>
+</button>
 
 <script src="assets/app.js" defer></script>
 </body>

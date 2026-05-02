@@ -109,6 +109,129 @@
     });
   }
 
+  /* ----- applyPageTheme: live recolor via CSS custom props ----- */
+  var resetBtn = doc.getElementById('themeReset');
+  var activeSwatch = null;
+  var activeSummon = null;
+
+  function applyPageTheme(p) {
+    var r = html;
+    if (!p) {
+      r.style.removeProperty('--bg');
+      r.style.removeProperty('--bg-rgb');
+      r.style.removeProperty('--surface');
+      r.style.removeProperty('--surface-2');
+      r.style.removeProperty('--accent');
+      r.style.removeProperty('--text');
+      r.style.removeProperty('--border');
+      r.style.removeProperty('--border-soft');
+      r.style.removeProperty('--text-mute');
+      r.style.removeProperty('--text-dim');
+      if (resetBtn) resetBtn.hidden = true;
+      if (activeSwatch) { activeSwatch.classList.remove('is-active'); activeSwatch = null; }
+      if (activeSummon) { activeSummon.classList.remove('is-active'); activeSummon = null; }
+      return;
+    }
+    function hexToRgb(h) {
+      h = h.replace('#','');
+      if (h.length === 3) h = h.split('').map(function(c){return c+c;}).join('');
+      var n = parseInt(h, 16);
+      return [(n>>16)&255, (n>>8)&255, n&255].join(' ');
+    }
+    r.style.setProperty('--bg', p.bg);
+    r.style.setProperty('--bg-rgb', hexToRgb(p.bg));
+    r.style.setProperty('--surface', p.surface || p.bg);
+    r.style.setProperty('--surface-2', p.surface || p.bg);
+    r.style.setProperty('--accent', p.accent);
+    r.style.setProperty('--text', p.text);
+    r.style.setProperty('--text-mute', 'color-mix(in oklab, ' + p.text + ' 65%, transparent)');
+    r.style.setProperty('--text-dim', 'color-mix(in oklab, ' + p.text + ' 38%, transparent)');
+    r.style.setProperty('--border', 'color-mix(in oklab, ' + p.text + ' 14%, ' + p.bg + ')');
+    r.style.setProperty('--border-soft', 'color-mix(in oklab, ' + p.text + ' 6%, transparent)');
+    if (resetBtn) resetBtn.hidden = false;
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () { applyPageTheme(null); });
+  }
+
+  /* Wire existing rail swatches */
+  doc.querySelectorAll('.swatch').forEach(function (sw) {
+    sw.addEventListener('click', function () {
+      var bg = sw.style.getPropertyValue('--bg').trim();
+      var surf = sw.style.getPropertyValue('--surf').trim();
+      var ac = sw.style.getPropertyValue('--ac').trim();
+      var tx = sw.style.getPropertyValue('--tx').trim();
+      if (!bg || !ac || !tx) return;
+      if (activeSwatch === sw) {
+        applyPageTheme(null);
+        return;
+      }
+      if (activeSwatch) activeSwatch.classList.remove('is-active');
+      sw.classList.add('is-active');
+      activeSwatch = sw;
+      if (activeSummon) { activeSummon.classList.remove('is-active'); activeSummon = null; }
+      applyPageTheme({ bg: bg, surface: surf, accent: ac, text: tx });
+    });
+  });
+
+  /* ----- Summon overlay (hotkey demo) ----- */
+  var summon = doc.getElementById('summon');
+  function openSummon() {
+    if (!summon) return;
+    summon.hidden = false;
+    summon.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function () { summon.classList.add('is-open'); });
+    doc.body.style.overflow = 'hidden';
+  }
+  function closeSummon() {
+    if (!summon) return;
+    summon.classList.remove('is-open');
+    doc.body.style.overflow = '';
+    setTimeout(function () {
+      if (!summon.classList.contains('is-open')) {
+        summon.hidden = true;
+        summon.setAttribute('aria-hidden', 'true');
+      }
+    }, 240);
+  }
+  if (summon) {
+    summon.querySelectorAll('[data-summon-close]').forEach(function (el) {
+      el.addEventListener('click', closeSummon);
+    });
+    summon.querySelectorAll('.summon-thumb').forEach(function (t) {
+      t.addEventListener('click', function () {
+        if (activeSummon === t) {
+          applyPageTheme(null);
+          return;
+        }
+        if (activeSummon) activeSummon.classList.remove('is-active');
+        t.classList.add('is-active');
+        activeSummon = t;
+        if (activeSwatch) { activeSwatch.classList.remove('is-active'); activeSwatch = null; }
+        applyPageTheme({
+          bg: t.dataset.bg,
+          surface: t.dataset.surface,
+          accent: t.dataset.accent,
+          text: t.dataset.text
+        });
+      });
+    });
+  }
+
+  window.addEventListener('keydown', function (e) {
+    var meta = e.metaKey || e.ctrlKey;
+    var k = (e.key || '').toLowerCase();
+    if (meta && e.shiftKey && k === 'w') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (summon && summon.classList.contains('is-open')) closeSummon();
+      else openSummon();
+    } else if (k === 'escape') {
+      if (summon && summon.classList.contains('is-open')) closeSummon();
+    }
+  });
+
   /* ----- Theme rail drag scroll ----- */
   var rail = doc.getElementById('themeRail');
   if (rail) {
