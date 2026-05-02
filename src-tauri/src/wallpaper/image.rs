@@ -55,12 +55,18 @@ fn apply_all_spaces(path: &str) {
     let script = format!(
         r#"tell application "System Events" to tell every desktop to set picture to "{escaped}""#
     );
+    // Fire-and-forget so set_wallpaper returns instantly; AppleScript-via-
+    // System-Events takes ~1s per Space and would otherwise block the IPC
+    // handler / popover dismissal.
     if let Err(e) = std::process::Command::new("osascript")
         .arg("-e")
         .arg(&script)
-        .status()
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
     {
-        tracing::warn!("osascript all-spaces wallpaper failed: {e}");
+        tracing::warn!("osascript spawn failed: {e}");
     }
 }
 
