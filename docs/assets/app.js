@@ -47,7 +47,7 @@
     });
   }
 
-  /* ----- Reveal-on-scroll ----- */
+  /* ----- Reveal-on-scroll (sparingly applied) ----- */
   var revealEls = doc.querySelectorAll('.reveal');
   if (reduced || !('IntersectionObserver' in window)) {
     revealEls.forEach(function (el) { el.classList.add('is-in'); });
@@ -55,10 +55,6 @@
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        var sibs = entry.target.parentElement ? entry.target.parentElement.querySelectorAll(':scope > .reveal') : [entry.target];
-        var idx = Array.prototype.indexOf.call(sibs, entry.target);
-        if (idx < 0) idx = 0;
-        entry.target.style.transitionDelay = (idx * 60) + 'ms';
         entry.target.classList.add('is-in');
         io.unobserve(entry.target);
       });
@@ -66,78 +62,7 @@
     revealEls.forEach(function (el) { io.observe(el); });
   }
 
-  /* ----- How-it-works dotted line ----- */
-  var howLine = doc.querySelector('.how-line');
-  if (howLine && 'IntersectionObserver' in window) {
-    var io2 = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) { howLine.classList.add('is-on'); io2.unobserve(entry.target); }
-      });
-    }, { threshold: 0.4 });
-    io2.observe(howLine);
-  }
-
-  /* ----- Hero parallax + mockup tilt ----- */
-  if (!reduced) {
-    var blobs = doc.querySelectorAll('.blob');
-    var hero = doc.querySelector('.hero');
-    var mockup = doc.getElementById('mockup');
-    var targetX = 0, targetY = 0, curX = 0, curY = 0, mx = 0, my = 0;
-    var rect = null;
-    function recalc() { rect = hero ? hero.getBoundingClientRect() : null; }
-    recalc();
-    window.addEventListener('resize', recalc);
-    if (hero) {
-      hero.addEventListener('mousemove', function (e) {
-        if (!rect) recalc();
-        var cx = rect.left + rect.width / 2;
-        var cy = rect.top + rect.height / 2;
-        targetX = (e.clientX - cx);
-        targetY = (e.clientY - cy);
-        if (mockup) {
-          var mr = mockup.getBoundingClientRect();
-          var inside = e.clientX > mr.left - 40 && e.clientX < mr.right + 40 && e.clientY > mr.top - 40 && e.clientY < mr.bottom + 40;
-          if (inside) {
-            mockup.classList.add('is-tilt');
-            var px = (e.clientX - (mr.left + mr.width / 2)) / (mr.width / 2);
-            var py = (e.clientY - (mr.top + mr.height / 2)) / (mr.height / 2);
-            mockup.style.setProperty('--tx', (px * 4).toFixed(2) + 'deg');
-            mockup.style.setProperty('--ty', (-py * 4).toFixed(2) + 'deg');
-          } else {
-            mockup.classList.remove('is-tilt');
-            mockup.style.removeProperty('--tx');
-            mockup.style.removeProperty('--ty');
-          }
-        }
-      });
-      hero.addEventListener('mouseleave', function () {
-        targetX = 0; targetY = 0;
-        if (mockup) { mockup.classList.remove('is-tilt'); mockup.style.removeProperty('--tx'); mockup.style.removeProperty('--ty'); }
-      });
-    }
-    function tick() {
-      curX += (targetX - curX) * 0.06;
-      curY += (targetY - curY) * 0.06;
-      blobs.forEach(function (b) {
-        var k = parseFloat(b.dataset.parallax || '0.02');
-        var max = 24;
-        var dx = Math.max(-max, Math.min(max, curX * k));
-        var dy = Math.max(-max, Math.min(max, curY * k));
-        b.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0)';
-      });
-      requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
-
-  /* ----- Copy on click (theme path button + code pane) ----- */
-  function flashAck(el, label) {
-    if (!el) return;
-    var prev = el.textContent;
-    el.textContent = label;
-    el.classList.add('is-copied');
-    setTimeout(function () { el.textContent = prev; el.classList.remove('is-copied'); }, 1400);
-  }
+  /* ----- Copy on click ----- */
   function copyText(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       return navigator.clipboard.writeText(text);
@@ -152,13 +77,21 @@
     doc.body.removeChild(ta);
     return Promise.resolve();
   }
+  function flashAck(el, label) {
+    if (!el) return;
+    var prev = el.textContent;
+    el.textContent = label;
+    el.classList.add('is-copied');
+    setTimeout(function () { el.textContent = prev; el.classList.remove('is-copied'); }, 1400);
+  }
 
   var themePath = doc.querySelector('.theme-path');
   if (themePath) {
     themePath.addEventListener('click', function () {
       copyText(themePath.dataset.copy || themePath.querySelector('code').textContent);
-      var hint = themePath.querySelector('.copy-hint');
-      flashAck(hint, 'Copied');
+      flashAck(themePath.querySelector('.copy-hint'), 'Copied');
+      themePath.classList.add('is-copied');
+      setTimeout(function () { themePath.classList.remove('is-copied'); }, 1400);
     });
   }
 
@@ -166,17 +99,14 @@
   var codeAck = doc.getElementById('codeAck');
   if (codePane) {
     var pre = codePane.querySelector('pre.code');
-    var doCopy = function () {
+    pre.addEventListener('click', function () {
       copyText(pre.textContent);
       if (codeAck) {
         codeAck.hidden = false;
         clearTimeout(codePane._t);
         codePane._t = setTimeout(function () { codeAck.hidden = true; }, 1400);
       }
-    };
-    pre.addEventListener('click', doCopy);
-    var tbCopy = codePane.querySelector('.tb-copy');
-    if (tbCopy) tbCopy.addEventListener('click', function (e) { e.stopPropagation(); doCopy(); });
+    });
   }
 
   /* ----- Theme rail drag scroll ----- */
@@ -196,8 +126,8 @@
       rail.scrollLeft = sl - (e.pageX - rail.offsetLeft - sx);
     });
     rail.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight') { rail.scrollBy({ left: 240, behavior: 'smooth' }); e.preventDefault(); }
-      if (e.key === 'ArrowLeft')  { rail.scrollBy({ left: -240, behavior: 'smooth' }); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { rail.scrollBy({ left: 220, behavior: 'smooth' }); e.preventDefault(); }
+      if (e.key === 'ArrowLeft')  { rail.scrollBy({ left: -220, behavior: 'smooth' }); e.preventDefault(); }
     });
   }
 })();
