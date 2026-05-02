@@ -67,17 +67,8 @@ button { font: inherit; cursor: pointer; border: 0; background: transparent; col
 
 ::selection { background: color-mix(in oklab, var(--accent) 50%, transparent); color: var(--text); }
 
-/* Warm-tinted film grain */
-body::before {
-  content: "";
-  position: fixed; inset: 0;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  z-index: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1   0 0 0 0 0.92  0 0 0 0 0.78  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  mix-blend-mode: overlay;
-}
-[data-theme="light"] body::before { mix-blend-mode: multiply; }
+/* Grain dropped — full-viewport mix-blend-mode SVG was the biggest
+   scroll-paint cost. Flat bg is plenty. */
 
 /* ===== Typography ===== */
 .h1, .h2 { color: var(--text); margin: 0; }
@@ -184,9 +175,7 @@ kbd {
   z-index: 50;
   transform: translateY(-110%);
   transition: transform 280ms cubic-bezier(.2,.7,.2,1), background-color 240ms;
-  background: rgb(var(--bg-rgb) / 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgb(var(--bg-rgb) / 0.94);
   border-bottom: 1px solid var(--border-soft);
 }
 .nav.is-visible { transform: translateY(0); }
@@ -306,17 +295,12 @@ kbd {
   pointer-events: none;
   z-index: -1;
   overflow: hidden;
+  /* Pure radial gradient — no filter:blur, no blob element, no compositor layer */
+  background: radial-gradient(circle 520px at 92% 8%,
+    color-mix(in oklab, var(--accent) 30%, transparent),
+    transparent 70%);
 }
-.blob {
-  position: absolute;
-  width: 620px; height: 620px;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: var(--blob-opacity);
-  background: radial-gradient(circle at 50% 50%, var(--accent), transparent 60%);
-  top: -220px; right: -180px;
-  will-change: opacity;
-}
+.blob { display: none; }
 .hero-inner { max-width: 880px; }
 .h1 .serif { padding: 0 0.04em 0 0; }
 .h1 br + .serif { margin-top: 0; }
@@ -776,12 +760,12 @@ pre.code {
   align-items: center;
   gap: 10px;
   margin-top: 28px;
-  padding: 8px 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  padding: 10px 18px;
+  background: color-mix(in oklab, var(--accent) 12%, var(--surface));
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, var(--border));
   border-radius: 999px;
-  font-size: 13px;
-  color: var(--text-mute);
+  font-size: 13.5px;
+  color: var(--text);
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.01em;
   cursor: pointer;
@@ -789,21 +773,16 @@ pre.code {
 }
 .hero-hint:hover {
   border-color: var(--accent);
-  color: var(--text);
-  background: var(--surface-2);
+  background: color-mix(in oklab, var(--accent) 22%, var(--surface));
 }
 .hero-hint:active { transform: scale(0.98); }
+.hint-arrow { color: var(--accent); font-weight: 600; }
 .hero-hint kbd { font-size: 11px; min-width: 20px; height: 20px; padding: 0 4px; }
 .hint-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent);
-  animation: hintPulse 2.4s ease-in-out infinite;
-}
-@keyframes hintPulse {
-  0%, 100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 22%, transparent); }
-  50%      { box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 8%, transparent); }
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 18%, transparent);
 }
 
 /* ===== Fast section ===== */
@@ -832,14 +811,12 @@ pre.code {
 .summon-scrim {
   position: absolute;
   inset: 0;
-  background: rgb(0 0 0 / 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgb(0 0 0 / 0.62);
   opacity: 0;
   transition: opacity 200ms ease;
   pointer-events: auto;
 }
-[data-theme="light"] .summon-scrim { background: rgb(26 20 16 / 0.32); }
+[data-theme="light"] .summon-scrim { background: rgb(26 20 16 / 0.42); }
 .summon-panel {
   position: relative;
   width: min(720px, 92vw);
@@ -931,10 +908,6 @@ pre.code {
 .swatch.is-active {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
-}
-
-@media (prefers-reduced-data: reduce) {
-  body::before { opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

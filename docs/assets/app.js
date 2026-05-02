@@ -5,6 +5,19 @@
   var html = doc.documentElement;
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ----- Summon: bind trigger FIRST so nothing later can break it ----- */
+  doc.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('#summonTrigger, [data-summon-open]');
+    if (!t) return;
+    e.preventDefault();
+    var s = doc.getElementById('summon');
+    if (!s) return;
+    s.hidden = false;
+    s.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function () { s.classList.add('is-open'); });
+    doc.body.style.overflow = 'hidden';
+  });
+
   /* ----- Theme toggle ----- */
   var themeBtn = doc.getElementById('themeToggle');
   function applyTheme(t) {
