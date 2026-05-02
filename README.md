@@ -139,6 +139,13 @@ docs/                  GitHub Pages site
 
 Issues and PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Disclaimers
+
+This project is in early beta and lacks some features, if you have an idea of a feature suggest it. Read CONTRIBUTING.md
+for further information.
+This project has been made with ai 
+assistance - take of that what you will.
+
 ## License
 
 [GPL-3.0-only](LICENSE).
