@@ -41,6 +41,7 @@ pub struct ConfigPatch {
     pub theme_id: Option<String>,
     pub font_id: Option<String>,
     pub rotate: Option<crate::config::RotateMode>,
+    pub color_search_enabled: Option<bool>,
 }
 
 #[tauri::command]
@@ -91,6 +92,9 @@ pub fn set_config(patch: ConfigPatch, app: AppHandle, state: Shared<'_>) -> Resu
         if let Some(v) = patch.rotate {
             cfg.rotate = v;
         }
+        if let Some(v) = patch.color_search_enabled {
+            cfg.color_search_enabled = v;
+        }
     }
     state.save_config().map_err(err)?;
     let next = state.config.read().clone();
@@ -122,6 +126,7 @@ pub fn list_wallpapers(state: Shared<'_>) -> Vec<WallpaperItem> {
     // pool — first-run thumb gen on a large folder is otherwise serial and
     // dominates the IPC latency.
     let thumbs = &state.thumbs;
+    let color_search = cfg.color_search_enabled;
     std::thread::scope(|s| {
         let chunk = (items.len() / 4).max(1);
         let mut handles = Vec::new();
@@ -130,6 +135,11 @@ pub fn list_wallpapers(state: Shared<'_>) -> Vec<WallpaperItem> {
                 for item in slice.iter_mut() {
                     if let Ok(p) = thumbs.ensure(&item.path, &item.source_id) {
                         item.thumb_url = Some(p.to_string_lossy().into_owned());
+                    }
+                    if color_search {
+                        if let Ok(rgb) = thumbs.ensure_color(&item.path, &item.source_id) {
+                            item.dominant_color = Some(crate::colors::to_hex(rgb));
+                        }
                     }
                 }
             }));

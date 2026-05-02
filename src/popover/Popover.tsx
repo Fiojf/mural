@@ -13,6 +13,7 @@ import {
 } from "../lib/store";
 import { ipc, onWallpaperEvent } from "../lib/ipc";
 import { stripExtension } from "../lib/format";
+import { parseColorQuery, parseHex, rgbDistance } from "../lib/colors";
 
 export function Popover() {
   let unlistenList: (() => void) | undefined;
@@ -49,6 +50,20 @@ export function Popover() {
       display_name: stripExt ? stripExtension(it.name) : it.name,
     }));
     if (src) list = list.filter((x) => x.source_id === src);
+
+    const colorTarget = cfg?.color_search_enabled ? parseColorQuery(q) : null;
+    if (colorTarget) {
+      list = list
+        .filter((x) => x.dominant_color != null)
+        .map((x) => {
+          const rgb = parseHex(x.dominant_color!);
+          return { x, d: rgb ? rgbDistance(rgb, colorTarget) : Number.MAX_SAFE_INTEGER };
+        })
+        .sort((a, b) => a.d - b.d)
+        .map(({ x }) => x);
+      return list;
+    }
+
     if (q) list = list.filter((x) => x.display_name.toLowerCase().includes(q));
     if (cfg) {
       list.sort((a, b) => {

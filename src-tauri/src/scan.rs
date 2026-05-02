@@ -34,6 +34,9 @@ pub struct WallpaperItem {
     pub source_label: String,
     pub thumb_url: Option<String>,
     pub mtime: u64,
+    /// 6-char lowercase hex of the wallpaper's dominant color, populated when
+    /// `Config::color_search_enabled` is true; otherwise `None`.
+    pub dominant_color: Option<String>,
 }
 
 pub fn classify(path: &Path) -> Option<Kind> {
@@ -86,6 +89,7 @@ pub fn list_local(folder: &Path) -> Vec<WallpaperItem> {
             source_label: "~/Mural".to_string(),
             thumb_url: None,
             mtime,
+            dominant_color: None,
         });
     }
     out.sort_by_key(|w| w.name.to_lowercase());

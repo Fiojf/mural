@@ -24,6 +24,10 @@ impl ThumbCache {
         self.root.join(format!("{key}.webp"))
     }
 
+    pub fn color_path_for(&self, key: &str) -> PathBuf {
+        self.root.join("colors").join(format!("{key}.color"))
+    }
+
     pub fn root(&self) -> &Path {
         &self.root
     }
@@ -39,6 +43,26 @@ impl ThumbCache {
         }
         generate_thumb(src, &dst)?;
         Ok(dst)
+    }
+
+    /// Look up or compute the dominant color for `src`. Cached as a 6-char
+    /// hex sidecar next to the thumbnail.
+    pub fn ensure_color(&self, src: &Path, source_id: &str) -> Result<[u8; 3]> {
+        let mtime = file_mtime_ns(src).unwrap_or(0);
+        let key = Self::key(source_id, src, mtime);
+        let dst = self.color_path_for(&key);
+        if let Ok(s) = std::fs::read_to_string(&dst) {
+            if let Some(rgb) = crate::colors::parse_hex(s.trim()) {
+                return Ok(rgb);
+            }
+        }
+        let rgb = crate::colors::analyze(src)?;
+        if let Some(parent) = dst.parent() {
+            std::fs::create_dir_all(parent).ok();
+        }
+        std::fs::write(&dst, crate::colors::to_hex(rgb))
+            .with_context(|| format!("write color cache {}", dst.display()))?;
+        Ok(rgb)
     }
 }
 

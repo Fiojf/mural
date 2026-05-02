@@ -12,6 +12,7 @@ export interface WallpaperItem {
   source_label: string;
   thumb_url: string | null;
   mtime: number;
+  dominant_color: string | null;
 }
 
 export type Layout = "horizontal" | "grid" | "vertical";
@@ -80,6 +81,7 @@ export interface Config {
   font_id: string;
   rotate: RotateMode;
   first_run_done: boolean;
+  color_search_enabled: boolean;
 }
 
 export const ipc = {

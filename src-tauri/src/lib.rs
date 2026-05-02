@@ -3,6 +3,7 @@
 //! Top-level entry. Wires config, theme, source registry, scan/thumb pipeline,
 //! global hotkey, tray, popover/settings windows, and auto-rotate scheduler.
 
+pub mod colors;
 pub mod commands;
 pub mod config;
 pub mod fonts;
@@ -90,6 +91,15 @@ pub fn run() {
                 rotate::run(&h, &s).await;
             });
 
+            // Pre-warm the thumbnail (and color) cache in the background so
+            // the first popover open is instant after a cold start.
+            let s = app_state.clone();
+            tauri::async_runtime::spawn(async move {
+                tokio::task::spawn_blocking(move || prewarm_caches(&s))
+                    .await
+                    .ok();
+            });
+
             // First-run onboarding gate
             if app_state.is_first_run() {
                 if let Some(w) = app.get_webview_window("onboarding") {
@@ -102,4 +112,29 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// Walk every wallpaper across every enabled source and ensure its thumbnail
+/// (and dominant color, when the toggle is on) is on disk. Cheap on warm
+/// caches — the per-item ensure_* calls return immediately when the sidecar
+/// already exists.
+fn prewarm_caches(state: &Arc<state::AppState>) {
+    let cfg = state.config.read().clone();
+    let items = state.sources.collect_items(&cfg);
+    let thumbs = &state.thumbs;
+    let color_search = cfg.color_search_enabled;
+    std::thread::scope(|s| {
+        let chunk = (items.len() / 4).max(1);
+        for slice in items.chunks(chunk) {
+            s.spawn(move || {
+                for item in slice {
+                    let _ = thumbs.ensure(&item.path, &item.source_id);
+                    if color_search {
+                        let _ = thumbs.ensure_color(&item.path, &item.source_id);
+                    }
+                }
+            });
+        }
+    });
+    tracing::info!("prewarm: {} items processed", items.len());
 }

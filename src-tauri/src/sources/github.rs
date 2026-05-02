@@ -143,6 +143,7 @@ pub fn list_items(cache_root: &Path, src: &GithubSource) -> Vec<WallpaperItem> {
             source_label: label_text.clone(),
             thumb_url: None,
             mtime,
+            dominant_color: None,
         });
     }
     out

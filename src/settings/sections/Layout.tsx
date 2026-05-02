@@ -60,6 +60,11 @@ export function Layout() {
               value={c().strip_extension}
               onChange={(v) => patchConfig({ strip_extension: v })}
             />
+            <Toggle
+              label="Color search (beta) — type a color name to sort by hue"
+              value={c().color_search_enabled}
+              onChange={(v) => patchConfig({ color_search_enabled: v })}
+            />
           </>
         )}
       </Show>

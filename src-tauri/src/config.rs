@@ -93,6 +93,8 @@ pub struct Config {
     pub first_run_done: bool,
     #[serde(default)]
     pub sources: Vec<GithubSource>,
+    #[serde(default)]
+    pub color_search_enabled: bool,
 }
 
 impl Default for Config {
@@ -114,6 +116,7 @@ impl Default for Config {
             rotate: RotateMode::Off,
             first_run_done: false,
             sources: Vec::new(),
+            color_search_enabled: false,
         }
     }
 }
