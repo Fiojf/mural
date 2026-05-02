@@ -187,14 +187,15 @@ kbd {
   padding: 0 clamp(20px, 4vw, 32px);
   gap: 24px;
 }
-.nav-logo { display: inline-flex; align-items: center; gap: 9px; flex: 0 0 auto; }
+.nav-logo { display: inline-flex; align-items: baseline; gap: 0; flex: 0 0 auto; }
 .logo-word {
   font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 19px;
-  letter-spacing: -0.02em;
+  font-size: 22px;
+  letter-spacing: -0.025em;
   color: var(--text);
+  line-height: 1;
 }
 .nav-links {
   display: flex; gap: 28px;
@@ -719,15 +720,16 @@ pre.code {
   flex-wrap: wrap;
   gap: 20px;
 }
-.foot-row .nav-logo { gap: 10px; }
+.foot-row .nav-logo { gap: 0; align-items: baseline; }
 .foot-tag {
   color: var(--text-dim);
   font-size: 13.5px;
-  margin-left: 6px;
+  margin-left: 14px;
   border-left: 1px solid var(--border);
-  padding-left: 12px;
-  font-style: italic;
-  font-family: 'Fraunces', Georgia, serif;
+  padding-left: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  letter-spacing: 0.01em;
 }
 .foot-nav {
   display: flex;
