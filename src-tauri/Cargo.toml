@@ -42,7 +42,7 @@ notify-debouncer-full = "0.4"
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "bmp", "tiff", "webp"] }
 webp = "0.3"
 blake3 = "1"
-sha2 = "0.10"
+sha2 = "0.11"
 hex = "0.4"
 
 global-hotkey = "0.6"
