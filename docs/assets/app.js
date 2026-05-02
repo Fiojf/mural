@@ -195,6 +195,14 @@
       }
     }, 240);
   }
+  var summonTrigger = doc.getElementById('summonTrigger');
+  if (summonTrigger) {
+    summonTrigger.addEventListener('click', function () {
+      if (summon && summon.classList.contains('is-open')) closeSummon();
+      else openSummon();
+    });
+  }
+
   if (summon) {
     summon.querySelectorAll('[data-summon-close]').forEach(function (el) {
       el.addEventListener('click', closeSummon);
@@ -219,16 +227,32 @@
     });
   }
 
+  function isTypingTarget(t) {
+    if (!t) return false;
+    var tag = t.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || t.isContentEditable;
+  }
   window.addEventListener('keydown', function (e) {
-    var meta = e.metaKey || e.ctrlKey;
     var k = (e.key || '').toLowerCase();
+    if (k === 'escape') {
+      if (summon && summon.classList.contains('is-open')) closeSummon();
+      return;
+    }
+    if (isTypingTarget(e.target)) return;
+    var meta = e.metaKey || e.ctrlKey;
+    // Try ⌘⇧W (some browsers reserve this — we still attempt preventDefault).
     if (meta && e.shiftKey && k === 'w') {
       e.preventDefault();
       e.stopPropagation();
       if (summon && summon.classList.contains('is-open')) closeSummon();
       else openSummon();
-    } else if (k === 'escape') {
+      return;
+    }
+    // Browser-safe fallback: plain "/" opens the demo (Linear / GitHub style).
+    if (!meta && !e.altKey && k === '/') {
+      e.preventDefault();
       if (summon && summon.classList.contains('is-open')) closeSummon();
+      else openSummon();
     }
   });
 
