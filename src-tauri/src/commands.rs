@@ -133,7 +133,15 @@ pub fn set_wallpaper(
     display_id: Option<String>,
     state: Shared<'_>,
 ) -> Result<(), String> {
-    wallpaper::apply(&state, &path, display_id.as_deref()).map_err(err)
+    // Hand the apply call off so the IPC returns instantly. The popover can
+    // dismiss / animate without waiting for NSWorkspace + WindowServer.
+    let state_arc: Arc<AppState> = (*state).clone();
+    std::thread::spawn(move || {
+        if let Err(e) = wallpaper::apply(&state_arc, &path, display_id.as_deref()) {
+            tracing::error!("set_wallpaper: {e:#}");
+        }
+    });
+    Ok(())
 }
 
 #[derive(Debug, Serialize)]
