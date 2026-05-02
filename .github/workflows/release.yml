@@ -53,7 +53,7 @@ jobs:
           echo "path=$dmg" >> "$GITHUB_OUTPUT"
           echo "name=$(basename "$dmg")" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dmg-${{ matrix.arch }}
           path: ${{ steps.dmg.outputs.path }}
