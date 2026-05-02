@@ -615,20 +615,23 @@ kbd {
 .theme-path.is-copied .copy-hint { color: var(--accent); }
 
 /* ===== Sources ===== */
-.sources-grid {
-  display: grid; grid-template-columns: 1fr; gap: 40px;
-  align-items: start;
-}
-@media (min-width: 880px) {
-  .sources-grid { grid-template-columns: 5fr 7fr; gap: 56px; }
-}
-.sources-copy .h2 { margin: 0 0 18px; }
-.sources-copy p {
+.sources-inner { max-width: 720px; }
+.sources-inner .h2 { margin: 0 0 24px; }
+.sources-inner p {
   color: var(--text-mute);
-  font-size: 18px;
-  line-height: 1.6;
-  margin: 0;
-  max-width: 50ch;
+  font-size: 19px;
+  line-height: 1.65;
+  margin: 0 0 22px;
+  max-width: 60ch;
+}
+.sources-aside {
+  font-style: italic;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 18px !important;
+  color: var(--text-dim) !important;
+  border-left: 2px solid var(--border);
+  padding-left: 18px;
+  max-width: 56ch;
 }
 
 .code-pane {

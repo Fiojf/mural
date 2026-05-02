@@ -91,13 +91,13 @@
   <div class="container hero-inner">
     <p class="caption">Mural &mdash; beta. macOS only.</p>
     <h1 class="h1 reveal"><em class="serif">Press &#8984;&#8679;W.</em><br/><em class="serif">Click. Done.</em></h1>
-    <p class="lede reveal" style="--reveal-delay:80ms">A menu-bar wallpaper picker for macOS. No Settings pane. No preview window. No sync service. Drop images in <code>~/Mural</code>, hit the keystroke, click. The desktop changes.</p>
+    <p class="lede reveal" style="--reveal-delay:80ms">A wallpaper picker that lives in your menu bar. Drop pictures in a folder. Press a key. Pick one. Your desktop changes the second you click.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="https://github.com/Fiojf/mural/releases/download/v0.1.0-beta.1/Mural-0.1.0-beta.1.dmg">Download for macOS &mdash; 5 MB</a>
     </div>
     <p class="trust">
       <a class="text-link" href="https://github.com/Fiojf/mural" target="_blank" rel="noopener">Source on GitHub</a>
-      &nbsp;&middot;&nbsp; Free. GPL-3.0. Apple Silicon DMG soon.
+      &nbsp;&middot;&nbsp; Free. Open source. Native Apple Silicon build coming soon.
     </p>
   </div>
 </section>
@@ -151,9 +151,9 @@
   <div class="container what-inner">
     <span class="fleuron" aria-hidden="true">&#10086;</span>
     <h2 class="h2"><em class="serif">A wallpaper picker. Nothing more.</em></h2>
-    <p>Most wallpaper apps want to be a service. They sync. They account. They recommend. Mural reads a folder.</p>
-    <p>That is the architecture. A 5 MB Tauri binary. Sits in the menu bar. Opens a popover when you press the hotkey. Applies a wallpaper when you click one. No cloud. No inbox. No premium tier.</p>
-    <p>You bring the images. Drop them in <code>~/Mural</code>, or point Mural at a public GitHub repo. Mural watches the folder, shallow-clones the repo, caches thumbnails by content hash. Then it stays out of the way.</p>
+    <p>Most wallpaper apps want to be a service. They sync. They make accounts. They recommend. Mural reads a folder.</p>
+    <p>A small app. Lives in your menu bar. Opens when you press the hotkey. Changes the wallpaper when you click one. No cloud. No account. Nothing to subscribe to.</p>
+    <p>You bring the pictures. Drop them in <code>~/Mural</code>, or hand Mural a link to a public gallery on GitHub. Mural notices new files right away and pulls in fresh ones from the gallery on a schedule you pick.</p>
   </div>
 </section>
 
@@ -162,7 +162,7 @@
   <div class="container">
     <span class="fleuron" aria-hidden="true">&#10086;</span>
     <h2 class="h2"><em class="serif">Forty-six themes.</em></h2>
-    <p class="dek">Catppuccin, Tokyo Night, Rose Pine, Gruvbox, Nord, Everforest, Ayu, Dracula. Drop a TOML in the config folder &mdash; reload, no restart.</p>
+    <p class="dek">Catppuccin, Tokyo Night, Rose Pine, Gruvbox, Nord, Everforest, Ayu, Dracula. Pick one in Settings, or design your own &mdash; Mural picks up new themes the moment you drop them in.</p>
   </div>
 
   <div class="theme-rail-wrap">
@@ -222,8 +222,8 @@
 
   <div class="container">
     <details class="byo">
-      <summary>Bring your own.</summary>
-      <p>Drop a TOML at the path below. Mural reads it on next launch.</p>
+      <summary>Make your own.</summary>
+      <p>If you want to design a theme, drop the file into Mural&apos;s themes folder &mdash; the path is below. Mural finds it on next launch.</p>
       <button class="theme-path" data-copy="~/Library/Application Support/Mural/themes/" type="button" aria-label="Copy themes folder path">
         <code>~/Library/Application Support/Mural/themes/</code>
         <span class="copy-hint">Copy</span>
@@ -234,28 +234,11 @@
 
 <!-- SOURCES -->
 <section class="sources" id="sources">
-  <div class="container sources-grid">
-    <div class="sources-copy">
-      <span class="fleuron" aria-hidden="true">&#10086;</span>
-      <h2 class="h2"><em class="serif">Two source kinds.</em></h2>
-      <p>Local folders and any GitHub repo. Local sources watch via <code>notify</code>. GitHub sources shallow-clone via libgit2 and re-sync on the interval you set, with a <code>git ls-remote HEAD</code> check that skips the fetch when the SHA hasn&apos;t moved.</p>
-    </div>
-
-    <div class="code-pane" id="codePane">
-      <pre class="code"><code><span class="c-com"># ~/Library/Application Support/Mural/config.toml</span>
-
-<span class="c-bk">[[sources]]</span>
-<span class="c-key">kind</span> = <span class="c-str">"github"</span>
-<span class="c-key">url</span>  = <span class="c-str">"https://github.com/dharmx/walls"</span>
-<span class="c-key">ref</span>  = <span class="c-str">"main"</span>
-<span class="c-key">path</span> = <span class="c-str">"macOS"</span>
-<span class="c-key">sync_interval_hours</span> = <span class="c-num">24</span>
-
-<span class="c-bk">[[sources]]</span>
-<span class="c-key">kind</span> = <span class="c-str">"local"</span>
-<span class="c-key">path</span> = <span class="c-str">"~/Mural"</span></code></pre>
-      <span class="code-ack" id="codeAck" hidden>Copied</span>
-    </div>
+  <div class="container sources-inner">
+    <span class="fleuron" aria-hidden="true">&#10086;</span>
+    <h2 class="h2"><em class="serif">Two ways to feed it.</em></h2>
+    <p>A folder on your Mac, or any public gallery on GitHub. Drop a picture in your folder and it appears in the picker right away. Point Mural at a gallery and it pulls new wallpapers down in the background &mdash; on whatever schedule you pick.</p>
+    <p class="sources-aside">Galleries on GitHub are free, and there are plenty of them already. Mural ships with a few good ones built in, so you have somewhere to start before you bring your own.</p>
   </div>
 </section>
 
@@ -263,8 +246,8 @@
 <section class="mechanic">
   <div class="container mechanic-inner">
     <span class="fleuron" aria-hidden="true">&#10086;</span>
-    <h2 class="h2"><em class="serif">The mechanic.</em></h2>
-    <p>Drop wallpapers in <code>~/Mural</code>. Press <span class="kbd-inline"><kbd>&#8984;</kbd><kbd>&#8679;</kbd><kbd>W</kbd></span> from any app, any Space, any Stage Manager pile. Click a thumbnail. The wallpaper applies in the same frame. <kbd>Esc</kbd> dismisses. You go back to work.</p>
+    <h2 class="h2"><em class="serif">How it works.</em></h2>
+    <p>Drop wallpapers in <code>~/Mural</code>. Press <span class="kbd-inline"><kbd>&#8984;</kbd><kbd>&#8679;</kbd><kbd>W</kbd></span> from anywhere on your Mac. Click a thumbnail. The wallpaper changes the same instant. Hit <kbd>Esc</kbd> and the picker goes away. You go back to whatever you were doing.</p>
   </div>
 </section>
 
@@ -277,12 +260,12 @@
       <p class="dek">It&apos;s a 0.1. Some edges are still rough.</p>
     </div>
     <ul class="beta-list">
-      <li><strong>Unsigned.</strong> Gatekeeper warns the first time. Right-click &rarr; Open.</li>
-      <li><strong>x86_64 DMG only.</strong> Apple Silicon native build comes next.</li>
-      <li><strong>Lock-screen wallpaper</strong> is best-effort. Admin <code>osascript</code> copy.</li>
-      <li><strong>Video wallpapers</strong> fall through to a static apply. Real overlay layer is on the list.</li>
-      <li><strong>Per-Space targeting</strong> and CoreLocation sunrise/sunset are stubs.</li>
-      <li><strong>HEIC decoding</strong> shells out to <code>sips</code>. No libheif bundled.</li>
+      <li><strong>Not yet signed by Apple.</strong> The first time you open it, macOS will warn you. Right-click the app and choose Open &mdash; you only do this once.</li>
+      <li><strong>Built for Intel Macs first.</strong> Runs on Apple Silicon through Rosetta. A native build is next.</li>
+      <li><strong>Lock-screen wallpapers</strong> work, but not as cleanly as the desktop. macOS keeps that one a bit guarded.</li>
+      <li><strong>Video wallpapers</strong> show up as a still frame for now. Animated playback is coming.</li>
+      <li><strong>A different wallpaper per Space</strong>, and auto-rotate at sunrise &amp; sunset, are wired up but not finished.</li>
+      <li><strong>iPhone HEIC photos work.</strong> They lean on macOS to read them, so the very first open is a touch slower.</li>
     </ul>
   </div>
 </section>
