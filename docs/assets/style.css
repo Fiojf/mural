@@ -777,6 +777,17 @@ pre.code {
 }
 .hero-hint:active { transform: scale(0.98); }
 .hint-arrow { color: var(--accent); font-weight: 600; }
+.hero-hint-note {
+  margin: 14px 0 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-mute);
+  letter-spacing: 0.01em;
+  max-width: 56ch;
+  line-height: 1.5;
+}
+.hero-hint-note kbd { font-size: 11px; min-width: 18px; height: 18px; padding: 0 4px; }
+.hero-hint-note .dim { color: var(--text-dim); }
 .hero-hint kbd { font-size: 11px; min-width: 20px; height: 20px; padding: 0 4px; }
 .hint-dot {
   width: 7px; height: 7px;
