@@ -84,12 +84,23 @@ fn resize_short_edge(img: &image::DynamicImage, target: u32) -> image::DynamicIm
 
 fn write_webp(img: &image::DynamicImage, dst: &Path) -> Result<()> {
     let rgba = img.to_rgba8();
-    let encoder = webp::Encoder::from_rgba(&rgba, rgba.width(), rgba.height());
-    let bytes = encoder.encode(80.0);
+    let (w, h) = (rgba.width(), rgba.height());
+    // libwebp rejects dimensions outside [1, 16383]; the encoder panics on
+    // VP8_ENC_ERROR_BAD_DIMENSION otherwise.
+    if w == 0 || h == 0 || w > 16383 || h > 16383 {
+        anyhow::bail!("thumb dimensions {w}x{h} out of webp range");
+    }
     if let Some(parent) = dst.parent() {
         std::fs::create_dir_all(parent).ok();
     }
-    std::fs::write(dst, &*bytes).with_context(|| format!("write thumb {}", dst.display()))?;
+    // Some pathological inputs still trip libwebp internally; catch the panic
+    // so a single bad image can't take down the worker thread.
+    let bytes = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let encoder = webp::Encoder::from_rgba(&rgba, w, h);
+        encoder.encode(80.0).to_vec()
+    }))
+    .map_err(|_| anyhow::anyhow!("webp encoder panicked on {w}x{h}"))?;
+    std::fs::write(dst, &bytes).with_context(|| format!("write thumb {}", dst.display()))?;
     Ok(())
 }
 
