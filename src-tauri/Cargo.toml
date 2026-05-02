@@ -1,6 +1,6 @@
 [package]
 name = "mural"
-version = "0.1.0"
+version = "0.1.0-beta.1"
 description = "Mural — macOS wallpaper picker"
 authors = ["Mural Contributors"]
 license = "GPL-3.0-only"
