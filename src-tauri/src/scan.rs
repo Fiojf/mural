@@ -62,7 +62,9 @@ pub fn list_local(folder: &Path) -> Vec<WallpaperItem> {
         if !path.is_file() {
             continue;
         }
-        let Some(kind) = classify(&path) else { continue };
+        let Some(kind) = classify(&path) else {
+            continue;
+        };
         let name = path
             .file_name()
             .and_then(|s| s.to_str())
@@ -86,7 +88,7 @@ pub fn list_local(folder: &Path) -> Vec<WallpaperItem> {
             mtime,
         });
     }
-    out.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    out.sort_by_key(|w| w.name.to_lowercase());
     out
 }
 
@@ -134,7 +136,10 @@ fn spawn_watcher(handle: AppHandle, state: Arc<AppState>, folder: PathBuf) -> Re
     tauri::async_runtime::spawn(async move {
         while rx.recv().await.is_some() {
             let _ = state.events.send(AppEvent::ListChanged);
-            let _ = handle.emit("mural:wallpaper", serde_json::json!({"type": "list-changed"}));
+            let _ = handle.emit(
+                "mural:wallpaper",
+                serde_json::json!({"type": "list-changed"}),
+            );
         }
     });
 

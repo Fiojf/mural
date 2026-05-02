@@ -12,7 +12,10 @@ pub fn apply(path: &Path, display_id: Option<&str>, cfg: &Config) -> Result<()> 
     use objc2_foundation::{MainThreadMarker, NSDictionary, NSString, NSURL};
 
     let mtm = MainThreadMarker::new().context("setting wallpaper requires main thread")?;
-    let url_str = path.to_str().context("path is not valid UTF-8")?.to_string();
+    let url_str = path
+        .to_str()
+        .context("path is not valid UTF-8")?
+        .to_string();
 
     autoreleasepool(|_| -> Result<()> {
         let ns_path = NSString::from_str(&url_str);
@@ -30,10 +33,8 @@ pub fn apply(path: &Path, display_id: Option<&str>, cfg: &Config) -> Result<()> 
                     }
                 }
             }
-            unsafe {
-                ws.setDesktopImageURL_forScreen_options_error(&url, &screen, &opts)
-            }
-            .map_err(|e| anyhow::anyhow!("setDesktopImageURL failed: {e:?}"))?;
+            unsafe { ws.setDesktopImageURL_forScreen_options_error(&url, &screen, &opts) }
+                .map_err(|e| anyhow::anyhow!("setDesktopImageURL failed: {e:?}"))?;
         }
         Ok(())
     })

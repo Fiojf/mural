@@ -49,7 +49,10 @@ impl ThemeRegistry {
         let mut themes = Vec::new();
         let resource_root = handle
             .path()
-            .resolve("resources/themes/builtin", tauri::path::BaseDirectory::Resource)
+            .resolve(
+                "resources/themes/builtin",
+                tauri::path::BaseDirectory::Resource,
+            )
             .context("resolve builtin themes dir")?;
         load_dir(&resource_root, true, &mut themes)?;
 
@@ -58,7 +61,7 @@ impl ThemeRegistry {
             load_dir(&user, false, &mut themes).ok();
         }
 
-        themes.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        themes.sort_by_key(|t| t.name.to_lowercase());
         Ok(Self { themes })
     }
 

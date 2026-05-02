@@ -51,7 +51,10 @@ pub fn list_displays() -> Result<Vec<DisplayInfo>> {
         let key = NSString::from_str("NSScreenNumber");
         let id = dict
             .objectForKey(&key)
-            .and_then(|obj| obj.downcast_ref::<objc2_foundation::NSNumber>().map(|n| n.unsignedIntegerValue().to_string()))
+            .and_then(|obj| {
+                obj.downcast_ref::<objc2_foundation::NSNumber>()
+                    .map(|n| n.unsignedIntegerValue().to_string())
+            })
             .unwrap_or_else(|| format!("screen-{i}"));
         let name = screen.localizedName().to_string();
         out.push(DisplayInfo { id, name });

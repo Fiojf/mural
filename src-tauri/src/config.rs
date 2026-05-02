@@ -125,9 +125,7 @@ pub fn data_dir(_handle: &AppHandle) -> Result<PathBuf> {
 }
 
 pub fn cache_dir(_handle: &AppHandle) -> Result<PathBuf> {
-    Ok(dirs::cache_dir()
-        .context("no Caches dir")?
-        .join("Mural"))
+    Ok(dirs::cache_dir().context("no Caches dir")?.join("Mural"))
 }
 
 pub fn load_or_default(path: &Path) -> Result<(Config, bool)> {
@@ -174,16 +172,21 @@ mod tests {
     fn roundtrip_customized() {
         let dir = tempdir().unwrap();
         let path = dir.path().join("config.toml");
-        let mut cfg = Config::default();
-        cfg.hotkey = "Cmd+Shift+P".into();
-        cfg.layout = Layout::Grid;
-        cfg.first_run_done = true;
-        cfg.rotate = RotateMode::Interval { minutes: 30 };
+        let cfg = Config {
+            hotkey: "Cmd+Shift+P".into(),
+            layout: Layout::Grid,
+            first_run_done: true,
+            rotate: RotateMode::Interval { minutes: 30 },
+            ..Config::default()
+        };
         save(&path, &cfg).unwrap();
         let (loaded, first) = load_or_default(&path).unwrap();
         assert!(!first);
         assert_eq!(loaded.hotkey, "Cmd+Shift+P");
         assert_eq!(loaded.layout, Layout::Grid);
-        assert!(matches!(loaded.rotate, RotateMode::Interval { minutes: 30 }));
+        assert!(matches!(
+            loaded.rotate,
+            RotateMode::Interval { minutes: 30 }
+        ));
     }
 }

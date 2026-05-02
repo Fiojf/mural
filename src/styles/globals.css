@@ -19,7 +19,9 @@
   color-scheme: light;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -43,9 +45,10 @@ body {
 .thumb {
   border: 2px solid transparent;
   border-radius: 10px;
-  transition: border-color 140ms ease,
-              transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    border-color 140ms ease,
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .thumb[data-selected="true"] {
   border-color: var(--color-selected-border);
@@ -102,7 +105,9 @@ input:focus {
   height: 28px;
   border-radius: 8px;
   color: var(--color-muted);
-  transition: background-color 140ms ease, color 140ms ease;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
 }
 .icon-btn:hover {
   background: color-mix(in srgb, var(--color-text) 10%, transparent);

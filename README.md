@@ -1,73 +1,83 @@
+<div align="center">
+
 # Mural
 
-Floating wallpaper picker for macOS 12+, written in Rust + Tauri 2.
+**Wallpapers, one keystroke away.**
 
-Mural lives in the menu bar. Press a hotkey from anywhere to summon a floating
-popover, click any wallpaper to apply it, dismiss with `Esc`. Pull wallpapers
-from a local folder, from GitHub repositories, or both.
+A floating wallpaper picker for macOS. Lives in your menu bar, summons with `⌘⇧W`,
+applies wallpapers instantly. Built with Rust + Tauri 2 + SolidJS.
 
-## Highlights
+[![CI](https://github.com/Fiojf/mural/actions/workflows/ci.yml/badge.svg)](https://github.com/Fiojf/mural/actions/workflows/ci.yml)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/Fiojf/mural?include_prereleases&label=release)](https://github.com/Fiojf/mural/releases/latest)
+[![macOS 12+](https://img.shields.io/badge/macOS-12%2B-lightgrey)](https://github.com/Fiojf/mural/releases/latest)
 
-- **Floating popover** centered on the screen with the cursor, with vibrancy/blur
-  background, fade+scale animation, theme-aware accent border on the active item.
-- **45+ built-in themes** (Catppuccin, Tokyo Night, Gruvbox, Nord, Dracula,
-  Rosé Pine, Solarized, Everforest, Kanagawa, One Dark/Light, Material, Ayu,
-  Monokai Pro, GitHub) plus user-dropped TOML themes.
-- **GitHub sources**: register any public repo of wallpapers; Mural shallow-clones,
-  syncs on a schedule, and merges its images into the picker.
-- **All formats**: JPG, PNG, HEIC, WebP, GIF, BMP, TIFF, plus MP4/MOV video
-  wallpapers via a desktop-level AVPlayer overlay.
-- **Per-display, per-Space, lock-screen mirror, auto-rotate** (interval or
-  sunrise/sunset).
-- **Custom hotkey** (default `⌘⇧W`), launch at login, system fonts + Inter +
-  JetBrains Mono.
+[Download](https://github.com/Fiojf/mural/releases/latest) · [Website](https://fiojf.github.io/mural/) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
 
-## Build from source
+</div>
 
-Requires Rust (stable, ≥1.77), Node.js 18+, and Xcode command line tools.
+---
+
+## Features
+
+- **Floating popover** centered on the cursor's screen, dismissed with `Esc` or focus-loss.
+- **Three layouts** — horizontal scroller, grid, vertical list. Popover auto-resizes per layout.
+- **46 built-in themes** — Catppuccin, Tokyo Night, Gruvbox, Nord, Dracula, Rosé Pine,
+  Solarized, Everforest, Kanagawa, One Dark/Light, Material, Ayu, Monokai Pro, GitHub.
+  Drop your own `.toml` in the themes folder.
+- **GitHub sources** — point Mural at any public repo of images. Shallow clone via libgit2,
+  per-source sync interval, cheap `ls-remote` polling.
+- **Per-display targeting** — multi-monitor users get individual wallpapers per screen.
+- **Auto-rotate** — interval-based or sunrise/sunset (CoreLocation).
+- **All Spaces** — popover follows you across macOS Spaces.
+- **Custom fonts** — system, Inter, JetBrains Mono, or drop in TTF/OTF.
+
+## Install
+
+### Pre-built DMG
+
+Download the latest `.dmg` from [Releases](https://github.com/Fiojf/mural/releases/latest).
+Mural is **unsigned** (no Apple Developer cert). First launch needs a Gatekeeper bypass:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/Mural.app
+```
+
+Or right-click the app and choose **Open**.
+
+### Build from source
+
+Requires Rust ≥ 1.77, Node.js 18+, and Xcode Command Line Tools.
 
 ```sh
 git clone https://github.com/Fiojf/mural.git
 cd mural
 npm install
-npm run tauri dev      # development run
-npm run tauri build    # produces unsigned .app + .dmg under src-tauri/target/release/bundle/
+npm run tauri dev          # dev with HMR
+npm run tauri build        # release build → src-tauri/target/release/bundle/
 ```
 
-The first build downloads and vendors `libgit2` and `openssl` via `git2`'s
-vendored features, so no system dependencies beyond Xcode CLT are required.
+`libgit2` and `openssl` are vendored via `git2`'s features — no system deps needed.
 
-## Install
+## Usage
 
-### Homebrew (cask)
+| Action                         | Default shortcut |
+| ------------------------------ | ---------------- |
+| Toggle popover                 | `⌘⇧W`            |
+| Dismiss popover                | `Esc`            |
+| Open Settings                  | gear icon / tray |
+| Apply wallpaper                | click thumbnail  |
 
-```sh
-brew install --cask Fiojf/mural/mural
-```
-
-### MacPorts
-
-```sh
-sudo port install mural
-```
-
-### Pre-built `.app`
-
-Download the latest `.dmg` from the [Releases](https://github.com/Fiojf/mural/releases)
-page. Mural is **unsigned** (no Apple Developer cert), so the first launch needs
-a Gatekeeper bypass:
-
-```sh
-xattr -d com.apple.quarantine /Applications/Mural.app
-```
-
-Or right-click the app and choose **Open**.
+Drop wallpapers into `~/Mural`. Mural watches the folder and updates the picker live.
 
 ## Configuration
 
-`~/Library/Application Support/Mural/config.toml` is rewritten by the Settings
-window; you don't have to edit it by hand. To add a custom theme drop a TOML
-file into `~/Library/Application Support/Mural/themes/`:
+Config lives at `~/Library/Application Support/Mural/config.toml`. The Settings window
+rewrites it; manual edits aren't needed.
+
+### Custom theme
+
+Drop a `.toml` into `~/Library/Application Support/Mural/themes/`:
 
 ```toml
 name = "My Theme"
@@ -83,21 +93,39 @@ border          = "#313244"
 selected_border = "#f5c2e7"
 ```
 
-Custom fonts work the same way: drop `.ttf`/`.otf` into
-`~/Library/Application Support/Mural/fonts/` and pick them in Settings →
-Appearance.
+### Custom font
 
-## Architecture
+Drop a `.ttf` or `.otf` into `~/Library/Application Support/Mural/fonts/` and pick
+it from Settings → Appearance.
+
+### GitHub source
+
+Settings → Sources → **Add GitHub source**. Or directly in `config.toml`:
+
+```toml
+[[sources]]
+kind = "github"
+url  = "https://github.com/owner/repo"
+ref  = "main"
+path = "wallpapers"      # optional subdir
+sync_interval_hours = 24
+```
+
+## Project layout
 
 ```
 src/                   SolidJS + Tailwind frontend (popover, settings, onboarding)
 src-tauri/             Rust backend (Tauri 2 + objc2 macOS bindings)
-src-tauri/resources/   Bundled themes, fonts, sample wallpapers
-packaging/             MacPorts portfile + Homebrew cask
+src-tauri/resources/   Bundled themes + sample wallpapers
+scripts/               Theme + sample generators (Node)
+docs/                  GitHub Pages site
+.github/workflows/     CI + release pipelines
 ```
 
-See [`mural-prompt.md`](mural-prompt.md) for the full design brief.
+## Contributing
+
+Issues and PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-GPL-3.0-only. See [`LICENSE`](LICENSE).
+[GPL-3.0-only](LICENSE).

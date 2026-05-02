@@ -48,7 +48,9 @@ async fn next_sunrise_or_sunset(_state: &Arc<AppState>) -> Duration {
     if let Ok(Some(loc)) = crate::location::request().await {
         let now = chrono::Utc::now();
         let date = now.date_naive();
-        let (sr, ss) = sunrise::sunrise_sunset(loc.lat, loc.lon, date.year(), date.month(), date.day());
+        #[allow(deprecated)]
+        let (sr, ss) =
+            sunrise::sunrise_sunset(loc.lat, loc.lon, date.year(), date.month(), date.day());
         let sr_ts = chrono::DateTime::from_timestamp(sr, 0).unwrap_or(now);
         let ss_ts = chrono::DateTime::from_timestamp(ss, 0).unwrap_or(now);
         let candidates = [sr_ts, ss_ts]

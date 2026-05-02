@@ -52,9 +52,7 @@ export function Appearance() {
                 }}
                 class="px-3 py-2 bg-[var(--color-surface)] rounded-md text-sm"
               >
-                <For each={fonts() ?? []}>
-                  {(f) => <option value={f.id}>{f.name}</option>}
-                </For>
+                <For each={fonts() ?? []}>{(f) => <option value={f.id}>{f.name}</option>}</For>
               </select>
             </Field>
             <Field label="Open animation">

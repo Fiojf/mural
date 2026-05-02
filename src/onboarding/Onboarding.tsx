@@ -48,8 +48,8 @@ function Welcome(props: { onNext: () => void }) {
   return (
     <div class="space-y-6 max-w-prose">
       <p>
-        Mural lives in your menu bar. Press a hotkey from anywhere to summon a floating picker,
-        then click any wallpaper to apply it.
+        Mural lives in your menu bar. Press a hotkey from anywhere to summon a floating picker, then
+        click any wallpaper to apply it.
       </p>
       <button
         class="px-4 py-2 rounded-md bg-[var(--color-accent)] text-[var(--color-bg)] font-medium"
@@ -83,7 +83,10 @@ function Folder(props: { onNext: () => void }) {
   );
 }
 
-function ThemePick(props: { themes: ReturnType<typeof Array.prototype.slice> | any[]; onNext: () => void }) {
+function ThemePick(props: {
+  themes: ReturnType<typeof Array.prototype.slice> | any[];
+  onNext: () => void;
+}) {
   return (
     <div class="space-y-4">
       <h2 class="text-lg font-medium">Pick a theme</h2>

@@ -48,21 +48,49 @@ pub fn set_config(patch: ConfigPatch, app: AppHandle, state: Shared<'_>) -> Resu
     let layout_changed;
     {
         let mut cfg = state.config.write();
-        if let Some(v) = patch.folder { cfg.folder = v; }
-        if let Some(v) = patch.hotkey { cfg.hotkey = v; }
+        if let Some(v) = patch.folder {
+            cfg.folder = v;
+        }
+        if let Some(v) = patch.hotkey {
+            cfg.hotkey = v;
+        }
         layout_changed = patch.layout.is_some();
-        if let Some(v) = patch.layout { cfg.layout = v; }
-        if let Some(v) = patch.sort { cfg.sort = v; }
-        if let Some(v) = patch.show_searchbar { cfg.show_searchbar = v; }
-        if let Some(v) = patch.show_filenames { cfg.show_filenames = v; }
-        if let Some(v) = patch.strip_extension { cfg.strip_extension = v; }
-        if let Some(v) = patch.per_screen { cfg.per_screen = v; }
-        if let Some(v) = patch.per_space { cfg.per_space = v; }
-        if let Some(v) = patch.lock_screen_mirror { cfg.lock_screen_mirror = v; }
-        if let Some(v) = patch.open_animation { cfg.open_animation = v; }
-        if let Some(v) = patch.theme_id { cfg.theme_id = v; }
-        if let Some(v) = patch.font_id { cfg.font_id = v; }
-        if let Some(v) = patch.rotate { cfg.rotate = v; }
+        if let Some(v) = patch.layout {
+            cfg.layout = v;
+        }
+        if let Some(v) = patch.sort {
+            cfg.sort = v;
+        }
+        if let Some(v) = patch.show_searchbar {
+            cfg.show_searchbar = v;
+        }
+        if let Some(v) = patch.show_filenames {
+            cfg.show_filenames = v;
+        }
+        if let Some(v) = patch.strip_extension {
+            cfg.strip_extension = v;
+        }
+        if let Some(v) = patch.per_screen {
+            cfg.per_screen = v;
+        }
+        if let Some(v) = patch.per_space {
+            cfg.per_space = v;
+        }
+        if let Some(v) = patch.lock_screen_mirror {
+            cfg.lock_screen_mirror = v;
+        }
+        if let Some(v) = patch.open_animation {
+            cfg.open_animation = v;
+        }
+        if let Some(v) = patch.theme_id {
+            cfg.theme_id = v;
+        }
+        if let Some(v) = patch.font_id {
+            cfg.font_id = v;
+        }
+        if let Some(v) = patch.rotate {
+            cfg.rotate = v;
+        }
     }
     state.save_config().map_err(err)?;
     let next = state.config.read().clone();
@@ -216,16 +244,15 @@ pub fn sources_remove(id: String, app: AppHandle, state: Shared<'_>) -> Result<(
         cfg.sources.retain(|s| s.id != id);
     }
     state.save_config().map_err(err)?;
-    let _ = app.emit("mural:wallpaper", serde_json::json!({"type": "list-changed"}));
+    let _ = app.emit(
+        "mural:wallpaper",
+        serde_json::json!({"type": "list-changed"}),
+    );
     Ok(())
 }
 
 #[tauri::command]
-pub async fn sources_sync(
-    id: String,
-    app: AppHandle,
-    state: Shared<'_>,
-) -> Result<(), String> {
+pub async fn sources_sync(id: String, app: AppHandle, state: Shared<'_>) -> Result<(), String> {
     let src = state
         .config
         .read()
@@ -252,7 +279,10 @@ pub fn sources_set_enabled(
         }
     }
     state.save_config().map_err(err)?;
-    let _ = app.emit("mural:wallpaper", serde_json::json!({"type": "list-changed"}));
+    let _ = app.emit(
+        "mural:wallpaper",
+        serde_json::json!({"type": "list-changed"}),
+    );
     Ok(())
 }
 

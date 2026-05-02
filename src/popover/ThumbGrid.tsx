@@ -24,9 +24,7 @@ export function ThumbGrid(props: Props) {
           >
             <Show
               when={item.thumb_url}
-              fallback={
-                <div class="aspect-video w-full bg-[var(--color-surface)] rounded-md" />
-              }
+              fallback={<div class="aspect-video w-full bg-[var(--color-surface)] rounded-md" />}
             >
               <img
                 src={convertFileSrc(item.thumb_url ?? "")}
@@ -37,9 +35,7 @@ export function ThumbGrid(props: Props) {
               />
             </Show>
             <Show when={config()?.show_filenames}>
-              <div class="text-xs mt-1 truncate text-[var(--color-muted)]">
-                {item.display_name}
-              </div>
+              <div class="text-xs mt-1 truncate text-[var(--color-muted)]">{item.display_name}</div>
             </Show>
           </button>
         )}

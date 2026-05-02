@@ -58,8 +58,7 @@ pub fn normalize_url(input: &str) -> String {
 
 fn parse_owner_repo(url: &str) -> Result<(String, String)> {
     let normalized = normalize_url(url);
-    let parsed = Url::parse(&normalized)
-        .with_context(|| format!("invalid URL: {url}"))?;
+    let parsed = Url::parse(&normalized).with_context(|| format!("invalid URL: {url}"))?;
     let host = parsed.host_str().unwrap_or("");
     if !host.contains("github.com") {
         bail!("only github.com URLs are supported");
@@ -90,7 +89,9 @@ pub fn make_id(url: &str, r#ref: Option<&str>) -> String {
 }
 
 pub fn count_items(dir: &Path, sub: Option<&str>) -> usize {
-    let scan_root = sub.map(|s| dir.join(s)).unwrap_or_else(|| dir.to_path_buf());
+    let scan_root = sub
+        .map(|s| dir.join(s))
+        .unwrap_or_else(|| dir.to_path_buf());
     walkdir::WalkDir::new(&scan_root)
         .into_iter()
         .filter_map(|e| e.ok())
@@ -108,12 +109,17 @@ pub fn list_items(cache_root: &Path, src: &GithubSource) -> Vec<WallpaperItem> {
         .unwrap_or_else(|| dir.clone());
     let label_text = label(&src.url);
     let mut out = Vec::new();
-    for entry in walkdir::WalkDir::new(&scan_root).into_iter().filter_map(|e| e.ok()) {
+    for entry in walkdir::WalkDir::new(&scan_root)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
         if !entry.file_type().is_file() {
             continue;
         }
         let path = entry.path().to_path_buf();
-        let Some(kind) = classify(&path) else { continue };
+        let Some(kind) = classify(&path) else {
+            continue;
+        };
         let _ = kind; // kept for future use; preserved via Kind below
         let name = path
             .file_name()
@@ -210,7 +216,9 @@ fn fetch_and_reset(dir: &Path, r#ref: &str) -> Result<()> {
             .target()
             .ok_or_else(|| anyhow!("ref has no target"))?
     };
-    let obj = repo.find_object(target, None).context("find target object")?;
+    let obj = repo
+        .find_object(target, None)
+        .context("find target object")?;
     repo.reset(&obj, git2::ResetType::Hard, None)
         .context("git reset --hard")?;
     Ok(())
@@ -225,29 +233,19 @@ fn head_sha(dir: &Path) -> Option<String> {
 
 /// Cheap remote HEAD SHA lookup without full fetch.
 fn ls_remote_sha(url: &str, r#ref: &str) -> Result<String> {
-    let temp = std::env::temp_dir().join(format!(
-        "mural-lsremote-{}",
-        stable_key(url, Some(r#ref))
-    ));
+    let temp =
+        std::env::temp_dir().join(format!("mural-lsremote-{}", stable_key(url, Some(r#ref))));
     std::fs::create_dir_all(&temp).ok();
     let repo = git2::Repository::init(&temp).context("temp repo init")?;
-    let mut remote = repo
-        .remote_anonymous(url)
-        .context("anonymous remote")?;
+    let mut remote = repo.remote_anonymous(url).context("anonymous remote")?;
     remote
         .connect(git2::Direction::Fetch)
         .context("ls-remote connect")?;
     let list = remote.list().context("ls-remote list")?;
-    let needle = if r#ref == "HEAD" {
-        "HEAD"
-    } else {
-        r#ref
-    };
+    let needle = if r#ref == "HEAD" { "HEAD" } else { r#ref };
     let sha = list
         .iter()
-        .find(|h| {
-            h.name() == needle || h.name() == format!("refs/heads/{needle}").as_str()
-        })
+        .find(|h| h.name() == needle || h.name() == format!("refs/heads/{needle}").as_str())
         .map(|h| h.oid().to_string())
         .ok_or_else(|| anyhow!("ref {needle} not found on remote"))?;
     let _ = std::fs::remove_dir_all(&temp);
@@ -278,7 +276,10 @@ mod tests {
 
     #[test]
     fn id_stable_for_same_inputs() {
-        assert_eq!(make_id("https://github.com/a/b", None), make_id("https://github.com/a/b", None));
+        assert_eq!(
+            make_id("https://github.com/a/b", None),
+            make_id("https://github.com/a/b", None)
+        );
     }
 
     #[test]

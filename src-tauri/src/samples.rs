@@ -8,7 +8,11 @@ use tauri::{AppHandle, Manager};
 /// Copies bundled samples from the resource directory to `folder` if empty.
 /// Used by the onboarding finalization step.
 pub fn seed_from_resources(handle: &AppHandle, folder: &Path) -> Result<()> {
-    if folder.read_dir().map(|mut i| i.next().is_some()).unwrap_or(false) {
+    if folder
+        .read_dir()
+        .map(|mut i| i.next().is_some())
+        .unwrap_or(false)
+    {
         return Ok(());
     }
     std::fs::create_dir_all(folder).ok();

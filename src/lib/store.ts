@@ -1,11 +1,13 @@
 import { createSignal, createResource } from "solid-js";
 import { ipc, onConfigChanged, type Config, type WallpaperItem } from "./ipc";
 
-export const [config, { refetch: refetchConfig, mutate: setConfigSignal }] =
-  createResource<Config>(() => ipc.getConfig());
+export const [config, { refetch: refetchConfig, mutate: setConfigSignal }] = createResource<Config>(
+  () => ipc.getConfig(),
+);
 
-export const [wallpapers, { refetch: refetchWallpapers }] =
-  createResource<WallpaperItem[]>(() => ipc.listWallpapers());
+export const [wallpapers, { refetch: refetchWallpapers }] = createResource<WallpaperItem[]>(() =>
+  ipc.listWallpapers(),
+);
 
 export const [search, setSearch] = createSignal("");
 export const [activeSource, setActiveSource] = createSignal<string | null>(null);

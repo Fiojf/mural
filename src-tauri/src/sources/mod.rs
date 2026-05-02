@@ -87,10 +87,10 @@ impl SourceRegistry {
         for src in &cfg.sources {
             let dir = github::cache_dir_for(&self.cache_root, src);
             let count = github::count_items(&dir, src.path.as_deref());
-            let st = statuses
-                .get(&src.id)
-                .cloned()
-                .unwrap_or(GithubState { status: SourceStatus::Ok, error: None });
+            let st = statuses.get(&src.id).cloned().unwrap_or(GithubState {
+                status: SourceStatus::Ok,
+                error: None,
+            });
             out.push(SourceEntry {
                 id: src.id.clone(),
                 kind: "github".into(),
@@ -122,7 +122,13 @@ impl SourceRegistry {
 
 /// Spawn background sync loops for all configured GitHub sources.
 pub async fn start(handle: &AppHandle, state: &Arc<AppState>) -> Result<()> {
-    let ids: Vec<String> = state.config.read().sources.iter().map(|s| s.id.clone()).collect();
+    let ids: Vec<String> = state
+        .config
+        .read()
+        .sources
+        .iter()
+        .map(|s| s.id.clone())
+        .collect();
     for id in ids {
         spawn_loop(handle.clone(), state.clone(), id);
     }
@@ -157,11 +163,7 @@ pub fn spawn_loop(handle: AppHandle, state: Arc<AppState>, id: String) {
     });
 }
 
-pub async fn sync_one(
-    handle: &AppHandle,
-    state: &Arc<AppState>,
-    src: &GithubSource,
-) -> Result<()> {
+pub async fn sync_one(handle: &AppHandle, state: &Arc<AppState>, src: &GithubSource) -> Result<()> {
     state.statuses_set(&src.id, SourceStatus::Syncing, None);
     let _ = handle.emit(
         "mural:wallpaper",
@@ -169,8 +171,7 @@ pub async fn sync_one(
     );
     let cache_root = state.sources.cache_root.clone();
     let src_clone = src.clone();
-    let result =
-        tokio::task::spawn_blocking(move || github::sync(&cache_root, &src_clone)).await?;
+    let result = tokio::task::spawn_blocking(move || github::sync(&cache_root, &src_clone)).await?;
     match result {
         Ok(new_sha) => {
             // Update last_sync metadata in config
@@ -188,7 +189,10 @@ pub async fn sync_one(
                 "mural:wallpaper",
                 serde_json::json!({"type": "synced", "source_id": src.id}),
             );
-            let _ = handle.emit("mural:wallpaper", serde_json::json!({"type": "list-changed"}));
+            let _ = handle.emit(
+                "mural:wallpaper",
+                serde_json::json!({"type": "list-changed"}),
+            );
             Ok(())
         }
         Err(e) => {

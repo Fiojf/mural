@@ -49,9 +49,7 @@ function Toggle(props: {
       />
       <div>
         <div class="text-sm">{props.label}</div>
-        {props.hint && (
-          <div class="text-xs text-[var(--color-muted)] mt-0.5">{props.hint}</div>
-        )}
+        {props.hint && <div class="text-xs text-[var(--color-muted)] mt-0.5">{props.hint}</div>}
       </div>
     </label>
   );
