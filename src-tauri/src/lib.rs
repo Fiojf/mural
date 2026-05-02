@@ -59,9 +59,6 @@ pub fn run() {
             commands::request_location,
         ])
         .setup(|app| {
-            #[cfg(target_os = "macos")]
-            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-
             let handle = app.handle().clone();
             let app_state = Arc::new(state::AppState::initialize(&handle)?);
             app.manage(app_state.clone());
