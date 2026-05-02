@@ -8,6 +8,7 @@ pub mod video;
 use anyhow::Result;
 use std::path::Path;
 
+use crate::commands::DisplayInfo;
 use crate::scan::{classify, Kind};
 use crate::state::AppState;
 
@@ -33,4 +34,32 @@ pub fn apply(state: &AppState, path: &Path, display_id: Option<&str>) -> Result<
         }
     }
     Ok(())
+}
+
+#[cfg(target_os = "macos")]
+pub fn list_displays() -> Result<Vec<DisplayInfo>> {
+    use objc2_app_kit::NSScreen;
+    use objc2_foundation::{MainThreadMarker, NSString};
+
+    let mtm = MainThreadMarker::new()
+        .ok_or_else(|| anyhow::anyhow!("list_displays requires main thread"))?;
+    let screens = NSScreen::screens(mtm);
+    let mut out = Vec::with_capacity(screens.count());
+    for i in 0..screens.count() {
+        let screen = screens.objectAtIndex(i);
+        let dict = screen.deviceDescription();
+        let key = NSString::from_str("NSScreenNumber");
+        let id = dict
+            .objectForKey(&key)
+            .and_then(|obj| obj.downcast_ref::<objc2_foundation::NSNumber>().map(|n| n.unsignedIntegerValue().to_string()))
+            .unwrap_or_else(|| format!("screen-{i}"));
+        let name = screen.localizedName().to_string();
+        out.push(DisplayInfo { id, name });
+    }
+    Ok(out)
+}
+
+#[cfg(not(target_os = "macos"))]
+pub fn list_displays() -> Result<Vec<DisplayInfo>> {
+    Ok(Vec::new())
 }

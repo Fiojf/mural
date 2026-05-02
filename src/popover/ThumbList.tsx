@@ -1,5 +1,4 @@
-import { For, Show, createMemo } from "solid-js";
-import { createVirtualizer } from "@tanstack/solid-virtual";
+import { For, Show } from "solid-js";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { WallpaperItem, Layout } from "../lib/ipc";
 import { ipc } from "../lib/ipc";
@@ -11,19 +10,7 @@ interface Props {
 }
 
 export function ThumbList(props: Props) {
-  let scrollEl: HTMLDivElement | undefined;
   const horizontal = () => props.layout === "horizontal";
-  const itemSize = () => (horizontal() ? 168 : 84);
-
-  const virt = createMemo(() =>
-    createVirtualizer({
-      count: props.items.length,
-      getScrollElement: () => scrollEl ?? null,
-      estimateSize: () => itemSize(),
-      horizontal: horizontal(),
-      overscan: 6,
-    }),
-  );
 
   const apply = (item: WallpaperItem) => {
     void ipc.setWallpaper(item.path, activeDisplay());
@@ -31,56 +18,50 @@ export function ThumbList(props: Props) {
 
   return (
     <div
-      ref={(el) => (scrollEl = el)}
-      class="h-full"
+      class="h-full w-full"
       classList={{
         "overflow-x-auto overflow-y-hidden": horizontal(),
         "overflow-y-auto overflow-x-hidden": !horizontal(),
       }}
     >
       <div
-        style={{
-          [horizontal() ? "width" : "height"]: `${virt().getTotalSize()}px`,
-          [horizontal() ? "height" : "width"]: "100%",
-          position: "relative",
+        class="p-2"
+        classList={{
+          "flex flex-row gap-2 items-center h-full": horizontal(),
+          "flex flex-col gap-2": !horizontal(),
         }}
       >
-        <For each={virt().getVirtualItems()}>
-          {(v) => {
-            const item = props.items[v.index];
-            return (
-              <button
-                class="thumb absolute"
-                data-selected={false}
-                style={{
-                  [horizontal() ? "left" : "top"]: `${v.start}px`,
-                  [horizontal() ? "width" : "height"]: `${v.size - 8}px`,
-                  [horizontal() ? "height" : "width"]: horizontal() ? "calc(100% - 16px)" : "72px",
-                  [horizontal() ? "top" : "left"]: "8px",
-                }}
-                onClick={() => apply(item)}
-                title={item.display_name}
+        <For each={props.items}>
+          {(item) => (
+            <button
+              class="thumb shrink-0 flex flex-col"
+              data-selected={false}
+              classList={{
+                "w-[160px]": horizontal(),
+                "w-full": !horizontal(),
+              }}
+              onClick={() => apply(item)}
+              title={item.display_name}
+            >
+              <Show
+                when={item.thumb_url}
+                fallback={<div class="w-full aspect-video bg-[var(--color-surface)] rounded-md" />}
               >
-                <Show
-                  when={item.thumb_url}
-                  fallback={<div class="w-full h-full bg-[var(--color-surface)] rounded-md" />}
-                >
-                  <img
-                    src={convertFileSrc(item.thumb_url ?? "")}
-                    alt={item.display_name}
-                    class="w-full h-full object-cover rounded-md"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </Show>
-                <Show when={config()?.show_filenames}>
-                  <div class="text-xs mt-1 truncate text-[var(--color-muted)]">
-                    {item.display_name}
-                  </div>
-                </Show>
-              </button>
-            );
-          }}
+                <img
+                  src={convertFileSrc(item.thumb_url ?? "")}
+                  alt={item.display_name}
+                  class="w-full aspect-video object-cover rounded-md"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Show>
+              <Show when={config()?.show_filenames}>
+                <div class="text-xs truncate text-[var(--color-muted)] mt-1 w-full text-left px-1">
+                  {item.display_name}
+                </div>
+              </Show>
+            </button>
+          )}
         </For>
       </div>
     </div>

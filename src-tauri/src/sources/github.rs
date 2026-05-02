@@ -35,8 +35,31 @@ pub fn validate_url(url: &str) -> Result<()> {
     Ok(())
 }
 
+/// Normalize user-provided GitHub references into a canonical https URL.
+/// Accepts: "owner/repo", "github.com/owner/repo",
+/// "https://github.com/owner/repo[.git]", "git@github.com:owner/repo.git".
+pub fn normalize_url(input: &str) -> String {
+    let s = input.trim();
+    if let Some(rest) = s.strip_prefix("git@github.com:") {
+        return format!("https://github.com/{}", rest.trim_end_matches(".git"));
+    }
+    if s.starts_with("http://") || s.starts_with("https://") {
+        return s.to_string();
+    }
+    if let Some(rest) = s.strip_prefix("github.com/") {
+        return format!("https://github.com/{rest}");
+    }
+    // Bare "owner/repo".
+    if s.split('/').count() == 2 && !s.contains(' ') {
+        return format!("https://github.com/{s}");
+    }
+    s.to_string()
+}
+
 fn parse_owner_repo(url: &str) -> Result<(String, String)> {
-    let parsed = Url::parse(url).with_context(|| format!("invalid URL: {url}"))?;
+    let normalized = normalize_url(url);
+    let parsed = Url::parse(&normalized)
+        .with_context(|| format!("invalid URL: {url}"))?;
     let host = parsed.host_str().unwrap_or("");
     if !host.contains("github.com") {
         bail!("only github.com URLs are supported");
@@ -177,8 +200,6 @@ fn fetch_and_reset(dir: &Path, r#ref: &str) -> Result<()> {
     remote
         .fetch(&[refspec.as_str()], Some(&mut opts), None)
         .context("git fetch")?;
-    let head_ref = if r#ref == "HEAD" { "origin/HEAD" } else { &format!("origin/{r}", r = r#ref).clone() };
-    let _ = head_ref;
     let target = if r#ref == "HEAD" {
         repo.find_reference("refs/remotes/origin/HEAD")?
             .resolve()?

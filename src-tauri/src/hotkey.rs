@@ -3,7 +3,7 @@
 use anyhow::{Context, Result};
 use global_hotkey::{
     hotkey::{Code, HotKey, Modifiers},
-    GlobalHotKeyEvent, GlobalHotKeyManager,
+    GlobalHotKeyEvent, GlobalHotKeyManager, HotKeyState,
 };
 use std::sync::{Arc, OnceLock};
 use tauri::AppHandle;
@@ -30,7 +30,7 @@ pub fn install(handle: &AppHandle, state: &Arc<AppState>) -> Result<()> {
     std::thread::spawn(move || {
         let receiver = GlobalHotKeyEvent::receiver();
         for event in receiver {
-            if event.id == target_id {
+            if event.id == target_id && event.state == HotKeyState::Pressed {
                 let h = handle.clone();
                 let _ = tauri::async_runtime::spawn(async move {
                     if let Err(e) = popover::toggle(&h) {

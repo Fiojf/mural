@@ -45,6 +45,7 @@ pub fn run() {
             commands::list_fonts,
             commands::list_wallpapers,
             commands::set_wallpaper,
+            commands::list_displays,
             commands::open_settings,
             commands::open_popover,
             commands::close_popover,

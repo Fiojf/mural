@@ -122,16 +122,30 @@ impl SourceRegistry {
 
 /// Spawn background sync loops for all configured GitHub sources.
 pub async fn start(handle: &AppHandle, state: &Arc<AppState>) -> Result<()> {
-    let sources: Vec<GithubSource> = state.config.read().sources.clone();
-    for src in sources {
-        spawn_loop(handle.clone(), state.clone(), src);
+    let ids: Vec<String> = state.config.read().sources.iter().map(|s| s.id.clone()).collect();
+    for id in ids {
+        spawn_loop(handle.clone(), state.clone(), id);
     }
     Ok(())
 }
 
-fn spawn_loop(handle: AppHandle, state: Arc<AppState>, src: GithubSource) {
+/// Spawn a recurring sync loop for the source with `id`. Re-reads config each
+/// iteration so toggling `enabled`, changing `sync_interval_hours`, or removing
+/// the source takes effect on the running loop. Exits when the source is gone.
+pub fn spawn_loop(handle: AppHandle, state: Arc<AppState>, id: String) {
     tauri::async_runtime::spawn(async move {
         loop {
+            let snapshot = state
+                .config
+                .read()
+                .sources
+                .iter()
+                .find(|s| s.id == id)
+                .cloned();
+            let Some(src) = snapshot else {
+                // Source removed from config — terminate loop.
+                return;
+            };
             if !src.enabled {
                 tokio::time::sleep(std::time::Duration::from_secs(60)).await;
                 continue;

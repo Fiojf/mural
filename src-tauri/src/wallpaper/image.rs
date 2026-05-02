@@ -30,8 +30,10 @@ pub fn apply(path: &Path, display_id: Option<&str>, cfg: &Config) -> Result<()> 
                     }
                 }
             }
-            ws.setDesktopImageURL_forScreen_options_error(&url, &screen, &opts)
-                .map_err(|e| anyhow::anyhow!("setDesktopImageURL failed: {e:?}"))?;
+            unsafe {
+                ws.setDesktopImageURL_forScreen_options_error(&url, &screen, &opts)
+            }
+            .map_err(|e| anyhow::anyhow!("setDesktopImageURL failed: {e:?}"))?;
         }
         Ok(())
     })
@@ -40,13 +42,11 @@ pub fn apply(path: &Path, display_id: Option<&str>, cfg: &Config) -> Result<()> 
 #[cfg(target_os = "macos")]
 fn screen_uuid(screen: &objc2_app_kit::NSScreen) -> Option<String> {
     use objc2_foundation::NSString;
-    unsafe {
-        let dict = screen.deviceDescription();
-        let key = NSString::from_str("NSScreenNumber");
-        let obj = dict.objectForKey(&key)?;
-        let num: &objc2_foundation::NSNumber = obj.downcast_ref()?;
-        Some(format!("{}", num.unsignedIntegerValue()))
-    }
+    let dict = screen.deviceDescription();
+    let key = NSString::from_str("NSScreenNumber");
+    let obj = dict.objectForKey(&key)?;
+    let num: &objc2_foundation::NSNumber = obj.downcast_ref()?;
+    Some(format!("{}", num.unsignedIntegerValue()))
 }
 
 #[cfg(not(target_os = "macos"))]

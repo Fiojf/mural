@@ -29,7 +29,7 @@
         "resizable": false,
         "visible": false,
         "center": true,
-        "focus": false,
+        "focus": true,
         "hiddenTitle": true,
         "titleBarStyle": "Overlay"
       },

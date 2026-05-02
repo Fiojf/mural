@@ -123,3 +123,7 @@ export function onWallpaperEvent(cb: (e: WallpaperEvent) => void): Promise<Unlis
 export function onPopoverDismiss(cb: () => void): Promise<UnlistenFn> {
   return listen("mural:popover-dismiss", () => cb());
 }
+
+export function onConfigChanged(cb: (cfg: Config) => void): Promise<UnlistenFn> {
+  return listen<Config>("mural:config-changed", (e) => cb(e.payload));
+}

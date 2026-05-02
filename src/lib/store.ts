@@ -1,5 +1,5 @@
 import { createSignal, createResource } from "solid-js";
-import { ipc, type Config, type WallpaperItem } from "./ipc";
+import { ipc, onConfigChanged, type Config, type WallpaperItem } from "./ipc";
 
 export const [config, { refetch: refetchConfig, mutate: setConfigSignal }] =
   createResource<Config>(() => ipc.getConfig());
@@ -15,3 +15,5 @@ export async function patchConfig(patch: Partial<Config>): Promise<void> {
   const next = await ipc.setConfig(patch);
   setConfigSignal(next);
 }
+
+void onConfigChanged((cfg) => setConfigSignal(cfg));

@@ -44,11 +44,13 @@ pub struct ConfigPatch {
 }
 
 #[tauri::command]
-pub fn set_config(patch: ConfigPatch, state: Shared<'_>) -> Result<Config, String> {
+pub fn set_config(patch: ConfigPatch, app: AppHandle, state: Shared<'_>) -> Result<Config, String> {
+    let layout_changed;
     {
         let mut cfg = state.config.write();
         if let Some(v) = patch.folder { cfg.folder = v; }
         if let Some(v) = patch.hotkey { cfg.hotkey = v; }
+        layout_changed = patch.layout.is_some();
         if let Some(v) = patch.layout { cfg.layout = v; }
         if let Some(v) = patch.sort { cfg.sort = v; }
         if let Some(v) = patch.show_searchbar { cfg.show_searchbar = v; }
@@ -63,7 +65,12 @@ pub fn set_config(patch: ConfigPatch, state: Shared<'_>) -> Result<Config, Strin
         if let Some(v) = patch.rotate { cfg.rotate = v; }
     }
     state.save_config().map_err(err)?;
-    Ok(state.config.read().clone())
+    let next = state.config.read().clone();
+    if layout_changed {
+        let _ = popover::resize_for_layout(&app, &next.layout);
+    }
+    let _ = app.emit("mural:config-changed", &next);
+    Ok(next)
 }
 
 #[tauri::command]
@@ -99,6 +106,17 @@ pub fn set_wallpaper(
     state: Shared<'_>,
 ) -> Result<(), String> {
     wallpaper::apply(&state, &path, display_id.as_deref()).map_err(err)
+}
+
+#[derive(Debug, Serialize)]
+pub struct DisplayInfo {
+    pub id: String,
+    pub name: String,
+}
+
+#[tauri::command]
+pub fn list_displays() -> Result<Vec<DisplayInfo>, String> {
+    crate::wallpaper::list_displays().map_err(err)
 }
 
 #[tauri::command]
@@ -154,12 +172,13 @@ pub async fn sources_add_github(
     app: AppHandle,
     state: Shared<'_>,
 ) -> Result<SourceEntry, String> {
-    crate::sources::github::validate_url(&input.url).map_err(err)?;
-    let id = crate::sources::github::make_id(&input.url, input.r#ref.as_deref());
+    let normalized = crate::sources::github::normalize_url(&input.url);
+    crate::sources::github::validate_url(&normalized).map_err(err)?;
+    let id = crate::sources::github::make_id(&normalized, input.r#ref.as_deref());
     let src = GithubSource {
         id: id.clone(),
         kind: SourceKind::Github,
-        url: input.url.clone(),
+        url: normalized.clone(),
         r#ref: input.r#ref.clone(),
         path: input.path.clone(),
         enabled: true,
@@ -176,13 +195,9 @@ pub async fn sources_add_github(
     }
     state.save_config().map_err(err)?;
 
-    // Kick off first sync without blocking the UI.
-    let app_clone = app.clone();
+    // Kick off the recurring sync loop (also performs the first sync).
     let state_arc: Arc<AppState> = (*state).clone();
-    let src_clone = src.clone();
-    tauri::async_runtime::spawn(async move {
-        let _ = sources::sync_one(&app_clone, &state_arc, &src_clone).await;
-    });
+    sources::spawn_loop(app.clone(), state_arc, src.id.clone());
 
     let cfg = state.config.read().clone();
     let entry = state
@@ -242,13 +257,14 @@ pub fn sources_set_enabled(
 }
 
 #[tauri::command]
-pub fn onboarding_complete(state: Shared<'_>) -> Result<(), String> {
+pub fn onboarding_complete(app: AppHandle, state: Shared<'_>) -> Result<(), String> {
     {
         let mut cfg = state.config.write();
         cfg.first_run_done = true;
     }
     state.save_config().map_err(err)?;
-    crate::samples::seed_if_empty(&state.config.read().folder).ok();
+    let folder = state.config.read().folder.clone();
+    crate::samples::seed_from_resources(&app, &folder).ok();
     Ok(())
 }
 
