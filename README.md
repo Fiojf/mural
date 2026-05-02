@@ -45,6 +45,19 @@ xattr -dr com.apple.quarantine /Applications/Mural.app
 
 Or right-click the app and choose **Open**.
 
+### Homebrew (via cask file)
+
+Mural is not yet published to a Homebrew tap, but the cask is in this repo. Install it directly:
+
+```sh
+brew install --cask https://raw.githubusercontent.com/Fiojf/mural/main/packaging/homebrew/mural.rb
+```
+
+### MacPorts
+
+A `Portfile` is in [`packaging/macports/`](packaging/macports/Portfile) for future submission
+to the upstream ports tree. Not yet available via `port install` — use the DMG for now.
+
 ### Build from source
 
 Requires Rust ≥ 1.77, Node.js 18+, and Xcode Command Line Tools.
