@@ -12,6 +12,7 @@ export const [wallpapers, { refetch: refetchWallpapers }] = createResource<Wallp
 export const [search, setSearch] = createSignal("");
 export const [activeSource, setActiveSource] = createSignal<string | null>(null);
 export const [activeDisplay, setActiveDisplay] = createSignal<string | null>(null);
+export const [selectedPath, setSelectedPath] = createSignal<string | null>(null);
 
 export async function patchConfig(patch: Partial<Config>): Promise<void> {
   const next = await ipc.setConfig(patch);

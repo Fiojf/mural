@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { WallpaperItem } from "../lib/ipc";
 import { ipc } from "../lib/ipc";
-import { activeDisplay, config } from "../lib/store";
+import { activeDisplay, config, selectedPath, setSelectedPath } from "../lib/store";
 
 interface Props {
   items: WallpaperItem[];
@@ -18,8 +18,11 @@ export function ThumbGrid(props: Props) {
         {(item) => (
           <button
             class="thumb"
-            data-selected={false}
-            onClick={() => ipc.setWallpaper(item.path, activeDisplay())}
+            data-selected={selectedPath() === item.path}
+            onClick={() => {
+              setSelectedPath(item.path);
+              void ipc.setWallpaper(item.path, activeDisplay());
+            }}
             title={item.display_name}
           >
             <Show

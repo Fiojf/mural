@@ -2,7 +2,7 @@ import { For, Show } from "solid-js";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { WallpaperItem, Layout } from "../lib/ipc";
 import { ipc } from "../lib/ipc";
-import { activeDisplay, config } from "../lib/store";
+import { activeDisplay, config, selectedPath, setSelectedPath } from "../lib/store";
 
 interface Props {
   items: WallpaperItem[];
@@ -13,6 +13,7 @@ export function ThumbList(props: Props) {
   const horizontal = () => props.layout === "horizontal";
 
   const apply = (item: WallpaperItem) => {
+    setSelectedPath(item.path);
     void ipc.setWallpaper(item.path, activeDisplay());
   };
 
@@ -35,7 +36,7 @@ export function ThumbList(props: Props) {
           {(item) => (
             <button
               class="thumb shrink-0 flex flex-col"
-              data-selected={false}
+              data-selected={selectedPath() === item.path}
               classList={{
                 "w-[160px]": horizontal(),
                 "w-full": !horizontal(),
