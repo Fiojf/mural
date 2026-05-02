@@ -31,7 +31,6 @@ pub fn configure_window(app: &AppHandle) -> Result<()> {
     let Some(win) = app.get_webview_window(LABEL) else {
         return Ok(());
     };
-    apply_panel_style(&win);
     if let Some(state) = app.try_state::<std::sync::Arc<crate::state::AppState>>() {
         let layout = state.config.read().layout.clone();
         let (w, h) = size_for(&layout);
@@ -53,6 +52,23 @@ pub fn configure_window(app: &AppHandle) -> Result<()> {
     Ok(())
 }
 
+#[cfg(target_os = "macos")]
+static PANEL_STYLE_APPLIED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+#[cfg(target_os = "macos")]
+fn apply_panel_style_once(win: &WebviewWindow) {
+    use std::sync::atomic::Ordering;
+    if PANEL_STYLE_APPLIED
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        apply_panel_style(win);
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn apply_panel_style_once(_win: &WebviewWindow) {}
+
 pub fn toggle(app: &AppHandle) -> Result<()> {
     let Some(win) = app.get_webview_window(LABEL) else {
         return Ok(());
@@ -63,6 +79,7 @@ pub fn toggle(app: &AppHandle) -> Result<()> {
         win.hide()?;
     } else {
         win.show()?;
+        apply_panel_style_once(&win);
         let _ = win.center();
         let _ = win.set_focus();
     }
@@ -74,6 +91,7 @@ pub fn show(app: &AppHandle) -> Result<()> {
         return Ok(());
     };
     win.show()?;
+    apply_panel_style_once(&win);
     let _ = win.center();
     let _ = win.set_focus();
     Ok(())
@@ -96,13 +114,15 @@ fn apply_panel_style(win: &WebviewWindow) {
     if handle.is_null() {
         return;
     }
-    unsafe {
-        let ns_window: Retained<NSWindow> = Retained::retain(handle.cast()).unwrap();
-        let behavior = NSWindowCollectionBehavior::CanJoinAllSpaces
-            | NSWindowCollectionBehavior::FullScreenAuxiliary
-            | NSWindowCollectionBehavior::Stationary;
-        ns_window.setCollectionBehavior(behavior);
-    }
+    let Some(ns_window): Option<Retained<NSWindow>> = (unsafe { Retained::retain(handle.cast()) })
+    else {
+        tracing::warn!("ns_window retain returned None; skipping collection-behavior tweak");
+        return;
+    };
+    let behavior = NSWindowCollectionBehavior::CanJoinAllSpaces
+        | NSWindowCollectionBehavior::FullScreenAuxiliary
+        | NSWindowCollectionBehavior::Stationary;
+    ns_window.setCollectionBehavior(behavior);
 }
 
 #[cfg(not(target_os = "macos"))]
