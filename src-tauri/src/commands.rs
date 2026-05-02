@@ -134,10 +134,11 @@ pub fn set_wallpaper(
     app: AppHandle,
     state: Shared<'_>,
 ) -> Result<(), String> {
-    // NSWorkspace.setDesktopImageURL must run on the main thread, but we don't
-    // want to block the IPC handler waiting for it. Queue it on the main
-    // thread via Tauri's runtime — the run_on_main_thread call returns as
-    // soon as the closure is enqueued.
+    // Hide the popover first so the main runloop isn't busy compositing it
+    // while NSWorkspace hands the image to WindowServer. Then enqueue the
+    // apply on the main thread (AppKit requirement). run_on_main_thread
+    // returns as soon as the closure is queued, keeping the IPC fast.
+    let _ = popover::hide(&app);
     let state_arc: Arc<AppState> = (*state).clone();
     app.run_on_main_thread(move || {
         if let Err(e) = wallpaper::apply(&state_arc, &path, display_id.as_deref()) {
