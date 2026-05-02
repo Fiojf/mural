@@ -15,6 +15,9 @@ export function Sources() {
   const [busy, setBusy] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
 
+  const [syncing, setSyncing] = createSignal<string | null>(null);
+  const [rowError, setRowError] = createSignal<{ id: string; msg: string } | null>(null);
+
   function reset() {
     setUrl("");
     setRefField("");
@@ -22,6 +25,19 @@ export function Sources() {
     setInterval(24);
     setShowAdvanced(false);
     setError(null);
+  }
+
+  async function syncOne(id: string) {
+    setSyncing(id);
+    setRowError(null);
+    try {
+      await ipc.sourcesSync(id);
+    } catch (e: any) {
+      setRowError({ id, msg: String(e?.message ?? e) });
+    } finally {
+      setSyncing(null);
+      void refetch();
+    }
   }
 
   async function submit() {
@@ -85,15 +101,18 @@ export function Sources() {
                 </Show>
               </div>
             </div>
+            <Show when={rowError()?.id === s.id}>
+              <span class="text-xs text-red-400 mr-2 max-w-[200px] truncate">
+                {rowError()?.msg}
+              </span>
+            </Show>
             <Show when={s.kind === "github"}>
               <button
-                class="px-2 py-1 text-xs rounded-md bg-[var(--color-bg)]"
-                onClick={async () => {
-                  await ipc.sourcesSync(s.id);
-                  void refetch();
-                }}
+                class="px-2 py-1 text-xs rounded-md bg-[var(--color-bg)] disabled:opacity-50"
+                disabled={syncing() === s.id}
+                onClick={() => void syncOne(s.id)}
               >
-                Sync now
+                {syncing() === s.id ? "Syncing…" : "Sync now"}
               </button>
               <button
                 class="px-2 py-1 text-xs rounded-md bg-[var(--color-bg)]"
