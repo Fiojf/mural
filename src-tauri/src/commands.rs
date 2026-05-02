@@ -131,16 +131,20 @@ pub fn list_wallpapers(state: Shared<'_>) -> Vec<WallpaperItem> {
 pub fn set_wallpaper(
     path: PathBuf,
     display_id: Option<String>,
+    app: AppHandle,
     state: Shared<'_>,
 ) -> Result<(), String> {
-    // Hand the apply call off so the IPC returns instantly. The popover can
-    // dismiss / animate without waiting for NSWorkspace + WindowServer.
+    // NSWorkspace.setDesktopImageURL must run on the main thread, but we don't
+    // want to block the IPC handler waiting for it. Queue it on the main
+    // thread via Tauri's runtime — the run_on_main_thread call returns as
+    // soon as the closure is enqueued.
     let state_arc: Arc<AppState> = (*state).clone();
-    std::thread::spawn(move || {
+    app.run_on_main_thread(move || {
         if let Err(e) = wallpaper::apply(&state_arc, &path, display_id.as_deref()) {
             tracing::error!("set_wallpaper: {e:#}");
         }
-    });
+    })
+    .map_err(err)?;
     Ok(())
 }
 
