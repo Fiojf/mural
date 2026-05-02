@@ -84,7 +84,7 @@
   "bundle": {
     "active": true,
     "targets": ["app", "dmg"],
-    "category": "DesignTools",
+    "category": "Utility",
     "shortDescription": "Wallpaper picker",
     "longDescription": "Mural is a fast, themeable wallpaper picker for macOS, summoned with a hotkey.",
     "icon": [
