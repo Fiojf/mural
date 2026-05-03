@@ -33,7 +33,7 @@ export function ThumbGrid(props: Props) {
                 src={convertFileSrc(item.thumb_url ?? "")}
                 alt={item.display_name}
                 class="w-full aspect-video object-cover rounded-md"
-                loading="lazy"
+                loading={config()?.eager_thumbnails ? "eager" : "lazy"}
                 decoding="async"
               />
             </Show>

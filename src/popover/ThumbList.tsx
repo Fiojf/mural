@@ -17,16 +17,34 @@ export function ThumbList(props: Props) {
     void ipc.setWallpaper(item.path, activeDisplay());
   };
 
+  // Smooth wheel-to-horizontal redirect. Accumulates a target scrollLeft and
+  // lerps toward it each animation frame, so a mouse wheel feels like a
+  // trackpad swipe instead of jumping in fixed deltaY chunks.
+  let target = 0;
+  let raf = 0;
+
   const onWheel = (e: WheelEvent) => {
     if (!horizontal()) return;
     const el = e.currentTarget as HTMLDivElement;
-    // Trackpads already deliver deltaX for horizontal swipes; only redirect
-    // when the user spins a mouse wheel (deltaY dominant, deltaX tiny).
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      el.scrollLeft += e.deltaY;
-      e.preventDefault();
-    }
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // trackpad horizontal — pass through
+    e.preventDefault();
+    if (!raf) target = el.scrollLeft;
+    target = Math.max(0, Math.min(el.scrollWidth - el.clientWidth, target + e.deltaY * 1.4));
+    if (raf) return;
+    const tick = () => {
+      const dx = target - el.scrollLeft;
+      if (Math.abs(dx) < 0.5) {
+        el.scrollLeft = target;
+        raf = 0;
+        return;
+      }
+      el.scrollLeft += dx * 0.22;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
   };
+
+  const eager = () => config()?.eager_thumbnails === true;
 
   return (
     <div
@@ -64,7 +82,7 @@ export function ThumbList(props: Props) {
                   src={convertFileSrc(item.thumb_url ?? "")}
                   alt={item.display_name}
                   class="w-full aspect-video object-cover rounded-md"
-                  loading="lazy"
+                  loading={eager() ? "eager" : "lazy"}
                   decoding="async"
                 />
               </Show>

@@ -65,6 +65,11 @@ export function Layout() {
               value={c().color_search_enabled}
               onChange={(v) => patchConfig({ color_search_enabled: v })}
             />
+            <Toggle
+              label="Always load all thumbnails (no lazy load)"
+              value={c().eager_thumbnails}
+              onChange={(v) => patchConfig({ eager_thumbnails: v })}
+            />
           </>
         )}
       </Show>

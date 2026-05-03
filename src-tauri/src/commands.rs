@@ -42,6 +42,7 @@ pub struct ConfigPatch {
     pub font_id: Option<String>,
     pub rotate: Option<crate::config::RotateMode>,
     pub color_search_enabled: Option<bool>,
+    pub eager_thumbnails: Option<bool>,
 }
 
 #[tauri::command]
@@ -94,6 +95,9 @@ pub fn set_config(patch: ConfigPatch, app: AppHandle, state: Shared<'_>) -> Resu
         }
         if let Some(v) = patch.color_search_enabled {
             cfg.color_search_enabled = v;
+        }
+        if let Some(v) = patch.eager_thumbnails {
+            cfg.eager_thumbnails = v;
         }
     }
     state.save_config().map_err(err)?;

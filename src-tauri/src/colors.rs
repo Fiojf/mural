@@ -13,32 +13,47 @@ use std::path::Path;
 pub fn analyze(path: &Path) -> Result<[u8; 3]> {
     let img = image::open(path)
         .with_context(|| format!("decode for color analysis: {}", path.display()))?;
-    let small = img.resize_exact(64, 64, image::imageops::FilterType::Triangle);
+    let small = img.resize_exact(96, 96, image::imageops::FilterType::Triangle);
     let rgb = small.to_rgb8();
 
-    let mut buckets = [0u32; 4096]; // 16 * 16 * 16
+    // Sum (r, g, b, weight) per 4-bit-per-channel bucket. Saturated pixels
+    // weigh more than gray ones so a photo dominated by neutral tones doesn't
+    // collapse to mud.
+    let mut sums = vec![(0u64, 0u64, 0u64, 0u64); 4096];
     for px in rgb.pixels() {
         let r = px[0] as f32 / 255.0;
         let g = px[1] as f32 / 255.0;
         let b = px[2] as f32 / 255.0;
+        let max = r.max(g).max(b);
+        let min = r.min(g).min(b);
         let luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        if !(0.08..=0.95).contains(&luma) {
+        if !(0.06..=0.96).contains(&luma) {
             continue;
         }
+        let saturation = if max == 0.0 { 0.0 } else { (max - min) / max };
+        // Weight: saturated pixels count up to 5x; pure-gray pixels count 1x.
+        let w = (1.0 + saturation * 4.0) as u64;
+
         let idx =
             ((px[0] as usize >> 4) << 8) | ((px[1] as usize >> 4) << 4) | (px[2] as usize >> 4);
-        buckets[idx] += 1;
+        let s = &mut sums[idx];
+        s.0 += (px[0] as u64) * w;
+        s.1 += (px[1] as u64) * w;
+        s.2 += (px[2] as u64) * w;
+        s.3 += w;
     }
 
-    let (best_idx, _) = buckets
+    let (_, best) = sums
         .iter()
         .enumerate()
-        .max_by_key(|(_, &c)| c)
-        .ok_or_else(|| anyhow::anyhow!("no buckets — empty image?"))?;
+        .max_by_key(|(_, s)| s.3)
+        .filter(|(_, s)| s.3 > 0)
+        .ok_or_else(|| anyhow::anyhow!("no usable pixels in image"))?;
 
-    let r = (((best_idx >> 8) & 0x0f) << 4 | 0x08) as u8;
-    let g = (((best_idx >> 4) & 0x0f) << 4 | 0x08) as u8;
-    let b = ((best_idx & 0x0f) << 4 | 0x08) as u8;
+    // True mean of the heaviest bucket — no quantization-step bias.
+    let r = (best.0 / best.3) as u8;
+    let g = (best.1 / best.3) as u8;
+    let b = (best.2 / best.3) as u8;
     Ok([r, g, b])
 }
 
@@ -66,12 +81,43 @@ pub fn parse_hex(s: &str) -> Option<[u8; 3]> {
     Some([r, g, b])
 }
 
-/// Squared luma-weighted RGB distance. Lower = closer.
+/// HSV-aware perceptual distance. Hue dominates when both colors are
+/// saturated; falls back to luma + saturation distance for grays. Lower =
+/// closer.
 pub fn distance(a: [u8; 3], b: [u8; 3]) -> u32 {
-    let dr = a[0] as i32 - b[0] as i32;
-    let dg = a[1] as i32 - b[1] as i32;
-    let db = a[2] as i32 - b[2] as i32;
-    (30 * dr * dr + 59 * dg * dg + 11 * db * db) as u32
+    let (ah, as_, av) = rgb_to_hsv(a);
+    let (bh, bs, bv) = rgb_to_hsv(b);
+    let raw = (ah - bh).abs();
+    let dh = raw.min(360.0 - raw); // shortest way around the hue circle
+    let ds = (as_ - bs).abs();
+    let dv = (av - bv).abs();
+    // Effective hue weight: 0 when either is unsaturated (hue is meaningless),
+    // up to ~3.5 when both are vivid.
+    let hue_w = as_.min(bs) * 3.5;
+    let hue_term = (dh / 180.0) * hue_w; // dh / 180 ∈ [0, 1]
+    let total = hue_term * hue_term + ds * ds * 0.6 + dv * dv * 0.25;
+    (total * 10_000.0) as u32
+}
+
+fn rgb_to_hsv(rgb: [u8; 3]) -> (f32, f32, f32) {
+    let r = rgb[0] as f32 / 255.0;
+    let g = rgb[1] as f32 / 255.0;
+    let b = rgb[2] as f32 / 255.0;
+    let max = r.max(g).max(b);
+    let min = r.min(g).min(b);
+    let v = max;
+    let s = if max == 0.0 { 0.0 } else { (max - min) / max };
+    let h = if max == min {
+        0.0
+    } else if max == r {
+        60.0 * (((g - b) / (max - min)) % 6.0)
+    } else if max == g {
+        60.0 * (((b - r) / (max - min)) + 2.0)
+    } else {
+        60.0 * (((r - g) / (max - min)) + 4.0)
+    };
+    let h = if h < 0.0 { h + 360.0 } else { h };
+    (h, s, v)
 }
 
 /// Case-insensitive lookup against an inline table of CSS color keywords plus

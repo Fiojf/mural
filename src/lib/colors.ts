@@ -179,9 +179,35 @@ export function parseHex(s: string): [number, number, number] | null {
   return null;
 }
 
+function rgbToHsv(rgb: [number, number, number]): [number, number, number] {
+  const r = rgb[0] / 255;
+  const g = rgb[1] / 255;
+  const b = rgb[2] / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const v = max;
+  const s = max === 0 ? 0 : (max - min) / max;
+  let h = 0;
+  if (max !== min) {
+    const d = max - min;
+    if (max === r) h = 60 * (((g - b) / d) % 6);
+    else if (max === g) h = 60 * ((b - r) / d + 2);
+    else h = 60 * ((r - g) / d + 4);
+    if (h < 0) h += 360;
+  }
+  return [h, s, v];
+}
+
+/// HSV-aware perceptual distance. Hue dominates when both colors are
+/// saturated; falls back to luma + saturation distance for grays.
 export function rgbDistance(a: [number, number, number], b: [number, number, number]): number {
-  const dr = a[0] - b[0];
-  const dg = a[1] - b[1];
-  const db = a[2] - b[2];
-  return 30 * dr * dr + 59 * dg * dg + 11 * db * db;
+  const [ah, as_, av] = rgbToHsv(a);
+  const [bh, bs, bv] = rgbToHsv(b);
+  const raw = Math.abs(ah - bh);
+  const dh = Math.min(raw, 360 - raw);
+  const ds = Math.abs(as_ - bs);
+  const dv = Math.abs(av - bv);
+  const hueW = Math.min(as_, bs) * 3.5;
+  const hueTerm = (dh / 180) * hueW;
+  return hueTerm * hueTerm + ds * ds * 0.6 + dv * dv * 0.25;
 }

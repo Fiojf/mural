@@ -25,7 +25,9 @@ impl ThumbCache {
     }
 
     pub fn color_path_for(&self, key: &str) -> PathBuf {
-        self.root.join("colors").join(format!("{key}.color"))
+        // v2 = HSV-aware analyzer. Bumping the extension invalidates the v1
+        // sidecars without having to delete them by hand.
+        self.root.join("colors").join(format!("{key}.color2"))
     }
 
     pub fn root(&self) -> &Path {
