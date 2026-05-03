@@ -82,7 +82,7 @@ export interface Config {
   rotate: RotateMode;
   first_run_done: boolean;
   color_search_enabled: boolean;
-  eager_thumbnails: boolean;
+  eager_thumbs: boolean;
 }
 
 export const ipc = {

@@ -96,7 +96,7 @@ pub struct Config {
     #[serde(default)]
     pub color_search_enabled: bool,
     #[serde(default)]
-    pub eager_thumbnails: bool,
+    pub eager_thumbs: bool,
 }
 
 impl Default for Config {
@@ -119,7 +119,7 @@ impl Default for Config {
             first_run_done: false,
             sources: Vec::new(),
             color_search_enabled: false,
-            eager_thumbnails: false,
+            eager_thumbs: false,
         }
     }
 }

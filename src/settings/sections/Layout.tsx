@@ -66,9 +66,9 @@ export function Layout() {
               onChange={(v) => patchConfig({ color_search_enabled: v })}
             />
             <Toggle
-              label="Always load all thumbnails (no lazy load)"
-              value={c().eager_thumbnails}
-              onChange={(v) => patchConfig({ eager_thumbnails: v })}
+              label="Always load previews (no flicker on fast scroll, more memory)"
+              value={c().eager_thumbs}
+              onChange={(v) => patchConfig({ eager_thumbs: v })}
             />
           </>
         )}

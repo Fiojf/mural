@@ -17,34 +17,41 @@ export function ThumbList(props: Props) {
     void ipc.setWallpaper(item.path, activeDisplay());
   };
 
-  // Smooth wheel-to-horizontal redirect. Accumulates a target scrollLeft and
-  // lerps toward it each animation frame, so a mouse wheel feels like a
-  // trackpad swipe instead of jumping in fixed deltaY chunks.
-  let target = 0;
-  let raf = 0;
+  // Wheel → horizontal scroll with rAF-driven inertia. Accumulate deltaY into
+  // a target scrollLeft, then lerp the live scrollLeft toward it each frame.
+  // Smoother than mutating scrollLeft directly per wheel event.
+  let targetScroll = 0;
+  let rafId: number | null = null;
+  let scrollEl: HTMLDivElement | null = null;
+
+  const tick = () => {
+    if (!scrollEl) {
+      rafId = null;
+      return;
+    }
+    const cur = scrollEl.scrollLeft;
+    const diff = targetScroll - cur;
+    if (Math.abs(diff) < 0.5) {
+      scrollEl.scrollLeft = targetScroll;
+      rafId = null;
+      return;
+    }
+    scrollEl.scrollLeft = cur + diff * 0.18;
+    rafId = requestAnimationFrame(tick);
+  };
 
   const onWheel = (e: WheelEvent) => {
     if (!horizontal()) return;
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // trackpad horizontal, native handles it
     const el = e.currentTarget as HTMLDivElement;
-    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // trackpad horizontal — pass through
+    scrollEl = el;
+    if (rafId == null) targetScroll = el.scrollLeft;
+    targetScroll = Math.max(0, Math.min(targetScroll + e.deltaY, el.scrollWidth - el.clientWidth));
     e.preventDefault();
-    if (!raf) target = el.scrollLeft;
-    target = Math.max(0, Math.min(el.scrollWidth - el.clientWidth, target + e.deltaY * 1.4));
-    if (raf) return;
-    const tick = () => {
-      const dx = target - el.scrollLeft;
-      if (Math.abs(dx) < 0.5) {
-        el.scrollLeft = target;
-        raf = 0;
-        return;
-      }
-      el.scrollLeft += dx * 0.22;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
+    if (rafId == null) rafId = requestAnimationFrame(tick);
   };
 
-  const eager = () => config()?.eager_thumbnails === true;
+  const eager = () => config()?.eager_thumbs ?? false;
 
   return (
     <div
