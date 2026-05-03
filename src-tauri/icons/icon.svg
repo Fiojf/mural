@@ -1,12 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
-  <defs>
-    <linearGradient id="bg" x1="100" y1="100" x2="924" y2="924" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#cba6f7"/>
-      <stop offset="0.5" stop-color="#89b4fa"/>
-      <stop offset="1" stop-color="#94e2d5"/>
-    </linearGradient>
-  </defs>
-  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
-  <path d="M212 720 L378 472 L502 610 L626 416 L818 720 Z" fill="white" fill-opacity="0.96"/>
-  <circle cx="678" cy="350" r="60" fill="white" fill-opacity="0.96"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="#000000"/>
+  <text x="512" y="704"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-style="italic"
+        font-size="640"
+        fill="#ffffff">M</text>
 </svg>

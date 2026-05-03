@@ -132,8 +132,8 @@ export function Sources() {
         <div class="p-4 rounded-lg border border-[var(--color-border)] space-y-3">
           <h2 class="text-sm font-medium">Add a GitHub wallpaper repo</h2>
           <p class="text-xs text-[var(--color-muted)]">
-            Paste any GitHub URL — or just <code>owner/repo</code>. Mural shallow-clones the
-            default branch and picks up images automatically.
+            Paste any GitHub URL — or just <code>owner/repo</code>. Mural shallow-clones the default
+            branch and picks up images automatically.
           </p>
           <input
             placeholder="dharmx/walls   or   https://github.com/dharmx/walls"

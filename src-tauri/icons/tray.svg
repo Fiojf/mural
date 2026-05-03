@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" fill="none">
-  <path d="M2 17 L8 8 L11.5 12.5 L15 7 L20 17 Z" fill="black"/>
-  <circle cx="16.2" cy="5" r="1.8" fill="black"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+  <text x="11" y="17"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-style="italic"
+        font-weight="600"
+        font-size="20"
+        fill="black">M</text>
 </svg>

@@ -199,7 +199,10 @@ pub fn sync(cache_root: &Path, src: &GithubSource) -> Result<String> {
 /// removes now-empty subdirectories afterwards.
 fn prune_non_images(dir: &Path) {
     let mut empty_candidates: Vec<PathBuf> = Vec::new();
-    for entry in walkdir::WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+    for entry in walkdir::WalkDir::new(dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
         // Skip everything inside .git
         if entry.path().components().any(|c| c.as_os_str() == ".git") {
             continue;

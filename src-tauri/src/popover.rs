@@ -53,7 +53,8 @@ pub fn configure_window(app: &AppHandle) -> Result<()> {
 }
 
 #[cfg(target_os = "macos")]
-static PANEL_STYLE_APPLIED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+static PANEL_STYLE_APPLIED: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
 
 #[cfg(target_os = "macos")]
 fn apply_panel_style_once(win: &WebviewWindow) {

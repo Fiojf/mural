@@ -55,7 +55,8 @@ pub struct SourceRegistry {
     /// Per-source serializer: prevents two sync_one calls (recurring loop +
     /// manual "Sync now" click) from racing on the same `.git` dir and
     /// corrupting the lock files.
-    pub sync_locks: parking_lot::Mutex<std::collections::HashMap<String, Arc<parking_lot::Mutex<()>>>>,
+    pub sync_locks:
+        parking_lot::Mutex<std::collections::HashMap<String, Arc<parking_lot::Mutex<()>>>>,
 }
 
 impl SourceRegistry {

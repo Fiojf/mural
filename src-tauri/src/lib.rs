@@ -60,6 +60,12 @@ pub fn run() {
             commands::request_location,
         ])
         .setup(|app| {
+            // Hide dock icon — Mural is a menu-bar agent. The bundled .app
+            // also sets LSUIElement=true via Info.plist for production
+            // launches; this call covers `cargo run` / `tauri dev`.
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
             let handle = app.handle().clone();
             let app_state = Arc::new(state::AppState::initialize(&handle)?);
             app.manage(app_state.clone());

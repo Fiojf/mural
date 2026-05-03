@@ -25,7 +25,8 @@ pub fn analyze(path: &Path) -> Result<[u8; 3]> {
         if !(0.08..=0.95).contains(&luma) {
             continue;
         }
-        let idx = ((px[0] as usize >> 4) << 8) | ((px[1] as usize >> 4) << 4) | (px[2] as usize >> 4);
+        let idx =
+            ((px[0] as usize >> 4) << 8) | ((px[1] as usize >> 4) << 4) | (px[2] as usize >> 4);
         buckets[idx] += 1;
     }
 
@@ -277,8 +278,7 @@ mod tests {
         use image::{ImageBuffer, Rgb};
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("blue.png");
-        let img: ImageBuffer<Rgb<u8>, Vec<u8>> =
-            ImageBuffer::from_pixel(8, 8, Rgb([30, 60, 230]));
+        let img: ImageBuffer<Rgb<u8>, Vec<u8>> = ImageBuffer::from_pixel(8, 8, Rgb([30, 60, 230]));
         img.save(&path).unwrap();
         let rgb = analyze(&path).unwrap();
         // Bucketed result lands near input.
